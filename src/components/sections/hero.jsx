@@ -1,10 +1,35 @@
-﻿"use client";
+"use client";
 
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 
-export function Hero() {
+const defaultContent = {
+  badgeText: "Available for new projects - Q3 2026",
+  headingTop: "Design that",
+  headingEmphasis: "moves",
+  headingBottom: "the world.",
+  description:
+    "We are an independent studio building bold brands, premium digital products, and award-winning web experiences for ambitious teams worldwide.",
+  primaryCtaLabel: "Start a project",
+  primaryCtaLink: "/contact",
+  secondaryCtaLabel: "View our work",
+  secondaryCtaLink: "/portfolio",
+  stats: [
+    { value: "120+", label: "Projects shipped" },
+    { value: "48", label: "Awards won" },
+    { value: "12y", label: "Of craft" },
+    { value: "98%", label: "Client retention" },
+  ],
+};
+
+export function Hero({ content = defaultContent }) {
+  const resolved = {
+    ...defaultContent,
+    ...(content || {}),
+  };
+  const stats = Array.isArray(resolved.stats) ? resolved.stats : defaultContent.stats;
+
   return (
     <section className="relative pt-36 pb-24 sm:pt-44 sm:pb-32 overflow-hidden" suppressHydrationWarning>
       <div className="absolute inset-0 bg-hero" suppressHydrationWarning />
@@ -25,7 +50,7 @@ export function Hero() {
         >
           <span className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs font-medium text-foreground/80">
             <Sparkles className="h-3.5 w-3.5 text-accent" />
-            Available for new projects · Q3 2026
+            {resolved.badgeText}
           </span>
         </motion.div>
 
@@ -35,10 +60,10 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.1 }}
           className="mt-8 text-center text-5xl sm:text-7xl md:text-[8rem] font-bold tracking-[-0.04em] leading-[0.9]"
         >
-          <span className="text-gradient">Design that</span>
+          <span className="text-gradient">{resolved.headingTop}</span>
           <br />
-          <span className="italic font-light">moves</span>
-          <span className="text-gradient"> the world.</span>
+          <span className="italic font-light">{resolved.headingEmphasis}</span>
+          <span className="text-gradient"> {resolved.headingBottom}</span>
         </motion.h1>
 
         <motion.p
@@ -47,8 +72,7 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.3 }}
           className="mt-8 mx-auto max-w-2xl text-center text-base sm:text-lg text-muted-foreground"
         >
-          We&apos;re an independent studio building bold brands, premium digital products,
-          and award-winning web experiences for ambitious teams worldwide.
+          {resolved.description}
         </motion.p>
 
         <motion.div
@@ -58,17 +82,17 @@ export function Hero() {
           className="mt-10 flex flex-wrap items-center justify-center gap-3"
         >
           <Link
-            href="/contact"
+            href={resolved.primaryCtaLink}
             className="group inline-flex items-center gap-2 rounded-full bg-foreground text-background px-6 py-3 text-sm font-medium hover:opacity-90 transition-all hover:scale-[1.02]"
           >
-            Start a project
+            {resolved.primaryCtaLabel}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
           <Link
-            href="/portfolio"
+            href={resolved.secondaryCtaLink}
             className="inline-flex items-center gap-2 rounded-full glass px-6 py-3 text-sm font-medium hover:border-accent/50 transition-all"
           >
-            View our work
+            {resolved.secondaryCtaLabel}
           </Link>
         </motion.div>
 
@@ -78,15 +102,10 @@ export function Hero() {
           transition={{ duration: 1, delay: 0.6 }}
           className="mt-20 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl mx-auto"
         >
-          {[
-            { v: "120+", l: "Projects shipped" },
-            { v: "48", l: "Awards won" },
-            { v: "12y", l: "Of craft" },
-            { v: "98%", l: "Client retention" },
-          ].map((s) => (
-            <div key={s.l} className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold tracking-tight">{s.v}</div>
-              <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.l}</div>
+          {stats.map((s) => (
+            <div key={s.label} className="text-center">
+              <div className="text-3xl sm:text-4xl font-bold tracking-tight">{s.value}</div>
+              <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.label}</div>
             </div>
           ))}
         </motion.div>
@@ -94,3 +113,4 @@ export function Hero() {
     </section>
   );
 }
+

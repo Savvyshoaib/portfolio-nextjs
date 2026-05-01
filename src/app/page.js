@@ -1,33 +1,33 @@
-﻿import { Hero } from "@/components/sections/hero";
-import { Clients } from "@/components/sections/clients";
 import { About } from "@/components/sections/about";
-import { Services } from "@/components/sections/services";
+import { Blog } from "@/components/sections/blog";
+import { Clients } from "@/components/sections/clients";
+import { ContactSection } from "@/components/sections/contact";
 import { CTA } from "@/components/sections/cta";
+import { Hero } from "@/components/sections/hero";
 import { Portfolio } from "@/components/sections/portfolio";
+import { Services } from "@/components/sections/services";
 import { TechStack } from "@/components/sections/tech-stack";
 import { Testimonials } from "@/components/sections/testimonials";
-import { Blog } from "@/components/sections/blog";
-import { ContactSection } from "@/components/sections/contact";
+import { getPublicSiteData } from "@/lib/cms/public";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const data = await getPublicSiteData();
+  const sections = data.sections || {};
+
   return (
     <>
-      <Hero />
-      <Clients />
-      <About />
-      <Services />
-      <CTA
-        eyebrow="Collaborate"
-        title="Let's work together on something extraordinary."
-        subtitle="From idea to launch, we partner with teams that care about the details."
-        cta="Let's work together"
-      />
-      <Portfolio />
-      <TechStack />
-      <Testimonials />
-      <CTA />
-      <Blog />
-      <ContactSection />
+      <Hero content={sections.hero} />
+      <Clients content={sections.clients} />
+      <About content={sections.about} />
+      <Services content={sections.services} items={data.services} />
+      <CTA content={sections.ctaPrimary} />
+      <Portfolio content={sections.portfolio} items={data.portfolio} />
+      <TechStack content={sections.techStack} items={data.techStack} />
+      <Testimonials content={sections.testimonials} items={data.testimonials} />
+      <CTA content={sections.ctaSecondary} />
+      <Blog content={sections.blog} items={data.blogPosts} />
+      <ContactSection content={sections.contact} />
     </>
   );
 }
+

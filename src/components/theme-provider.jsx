@@ -9,11 +9,16 @@ export function ThemeProvider({ children }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "light" || savedTheme === "dark") {
-      setTheme(savedTheme);
-    }
+    const nextTheme =
+      savedTheme === "light" || savedTheme === "dark" ? savedTheme : "dark";
+
+    const frameId = requestAnimationFrame(() => {
+      setTheme(nextTheme);
+      setMounted(true);
+    });
+
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   useEffect(() => {
