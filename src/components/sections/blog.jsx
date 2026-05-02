@@ -52,6 +52,7 @@ function renderTitle(title, emphasis) {
 export function Blog({ content = defaultContent, items = defaultPosts }) {
   const resolved = { ...defaultContent, ...(content || {}) };
   const posts = Array.isArray(items) && items.length ? items : defaultPosts;
+  const allArticlesHref = "/blog";
 
   return (
     <section className="py-24 sm:py-32" suppressHydrationWarning>
@@ -65,7 +66,7 @@ export function Blog({ content = defaultContent, items = defaultPosts }) {
               </h2>
             </div>
             <Link
-              href={resolved.linkHref}
+              href={allArticlesHref}
               className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
             >
               {resolved.linkLabel} <ArrowUpRight className="h-4 w-4" />
@@ -77,7 +78,7 @@ export function Blog({ content = defaultContent, items = defaultPosts }) {
           {posts.map((post, index) => (
             <Reveal key={post.id || post.title || index} delay={index * 0.08}>
               <Link
-                href={resolved.linkHref}
+                href={post.slug ? `/blog/${post.slug}` : allArticlesHref}
                 className="group block h-full rounded-3xl border border-border bg-card overflow-hidden hover:border-accent/40 hover:shadow-elegant transition-all"
               >
                 <div className="aspect-[16/10] bg-gradient-to-br from-accent/30 via-accent/10 to-transparent relative overflow-hidden">

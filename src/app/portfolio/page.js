@@ -23,27 +23,11 @@ function renderTitle(title, emphasis) {
   );
 }
 
-function buildPortfolioGrid(items = []) {
-  if (items.length >= 9) {
-    return items;
-  }
-
-  const extra = items.slice(0, 3).map((item, index) => ({
-    ...item,
-    id: `${item.id || item.slug || item.title}-vol2-${index}`,
-    title: `${item.title} - vol II`,
-    year: item.year || "2023",
-    size: index % 2 ? "lg" : "sm",
-  }));
-
-  return [...items, ...extra];
-}
-
 export default async function PortfolioPage() {
   const data = await getPublicSiteData();
   const sections = data.sections || {};
   const pageHeader = sections?.pageHeaders?.portfolio || {};
-  const allItems = buildPortfolioGrid(Array.isArray(data.portfolio) ? data.portfolio : []);
+  const allItems = Array.isArray(data.portfolio) ? data.portfolio : [];
 
   return (
     <>
@@ -66,10 +50,21 @@ export default async function PortfolioPage() {
             {allItems.map((item, index) => (
               <Reveal key={item.id || item.slug || `${item.title}-${index}`} delay={(index % 6) * 0.05} className={item.size === "lg" ? "md:col-span-2" : ""}>
                 <Link
-                  href="/portfolio"
-                  className="group relative block overflow-hidden rounded-3xl bg-card border border-border aspect-[4/3] hover:shadow-glow transition-all duration-500"
+                  href={item.slug ? `/portfolio/${item.slug}` : "/portfolio"}
+                  className="group relative block overflow-hidden rounded-3xl bg-card border border-border aspect-4/3 hover:shadow-glow transition-all duration-500"
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${item.color || "from-accent/40 to-accent"} opacity-90 transition-transform duration-700 group-hover:scale-110`} />
+                  {item.cover_image_url ? (
+                    <img
+                      src={item.cover_image_url}
+                      alt={item.title}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div
+                      className={`absolute inset-0 bg-linear-to-br ${item.color || "from-accent/40 to-accent"} opacity-90 transition-transform duration-700 group-hover:scale-110`}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,oklch(1_0_0/0.25),transparent_55%)]" />
                   <div className="absolute inset-0 noise" />
                   <div className="relative h-full flex flex-col justify-between p-6 sm:p-8">

@@ -127,5 +127,37 @@ export const adminApi = {
       method: "DELETE",
     });
   },
+  getServiceInquiries(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return request(`/api/admin/contact/services-inquiry${queryString ? `?${queryString}` : ""}`);
+  },
+  updateServiceInquiry(id, data) {
+    return request("/api/admin/contact/services-inquiry", {
+      method: "PUT",
+      body: JSON.stringify({ id, ...data }),
+    });
+  },
+  deleteServiceInquiry(id) {
+    return request(`/api/admin/contact/services-inquiry?id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+  },
+  createContentItem(type, data) {
+    return request("/api/admin/content", {
+      method: "POST",
+      body: JSON.stringify({ type, ...data }),
+    });
+  },
+  updateContentItem(type, id, data) {
+    return request("/api/admin/content", {
+      method: "PUT",
+      body: JSON.stringify({ type, id, ...data }),
+    });
+  },
+  deleteContentItem(type, id) {
+    return request(`/api/admin/content?type=${encodeURIComponent(type)}&id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+  },
 };
 

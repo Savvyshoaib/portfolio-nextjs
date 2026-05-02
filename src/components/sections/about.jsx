@@ -14,6 +14,7 @@ const defaultContent = {
   ],
   founderName: "Alex Moreau",
   founderRole: "Founder and Lead Designer",
+  founderImageUrl: "",
 };
 
 function renderTitle(title, emphasis) {
@@ -35,6 +36,7 @@ function renderTitle(title, emphasis) {
 export function About({ content = defaultContent }) {
   const resolved = { ...defaultContent, ...(content || {}) };
   const bullets = Array.isArray(resolved.bullets) ? resolved.bullets : defaultContent.bullets;
+  const founderImageUrl = String(resolved.founderImageUrl || "").trim();
 
   return (
     <section className="py-24 sm:py-32" suppressHydrationWarning>
@@ -42,6 +44,13 @@ export function About({ content = defaultContent }) {
         <div className="grid gap-12 md:gap-16 md:grid-cols-2 items-center">
           <Reveal>
             <div className="relative aspect-4/5 rounded-3xl overflow-hidden bg-gradient-accent shadow-elegant">
+              {founderImageUrl ? (
+                <img
+                  src={founderImageUrl}
+                  alt={resolved.founderName || "Founder"}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              ) : null}
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,oklch(1_0_0/0.3),transparent_50%)]" />
               <div className="absolute bottom-6 left-6 right-6 glass rounded-2xl p-5">
                 <p className="text-xs uppercase tracking-widest text-foreground/70">{resolved.founderRole}</p>

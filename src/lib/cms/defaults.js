@@ -157,6 +157,7 @@ export const DEFAULT_SITE_SECTIONS = {
     ],
     founderName: "Alex Moreau",
     founderRole: "Founder and Lead Designer",
+    founderImageUrl: "",
   },
   services: {
     eyebrow: "Services",

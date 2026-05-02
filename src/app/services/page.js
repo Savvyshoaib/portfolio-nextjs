@@ -80,8 +80,9 @@ export default async function ServicesPage() {
                   </div>
                   <div className="md:col-span-1 flex md:justify-end items-start">
                     <Link
-                      href="/contact"
+                      href={service.slug ? `/services/${service.slug}` : "/contact"}
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border group-hover:bg-accent group-hover:text-accent-foreground group-hover:border-accent transition-all"
+                      title={service.slug ? "View service details" : "Contact us"}
                     >
                       <ArrowUpRight className="h-4 w-4" />
                     </Link>

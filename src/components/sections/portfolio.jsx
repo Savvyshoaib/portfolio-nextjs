@@ -52,6 +52,7 @@ function renderTitle(title, emphasis) {
 export function Portfolio({ content = defaultContent, items = defaultProjects }) {
   const resolved = { ...defaultContent, ...(content || {}) };
   const list = Array.isArray(items) && items.length ? items : defaultProjects;
+  const allProjectsHref = "/portfolio";
 
   return (
     <section className="py-24 sm:py-32" suppressHydrationWarning>
@@ -65,7 +66,7 @@ export function Portfolio({ content = defaultContent, items = defaultProjects })
               </h2>
             </div>
             <Link
-              href={resolved.linkHref}
+              href={allProjectsHref}
               className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
             >
               {resolved.linkLabel} <ArrowUpRight className="h-4 w-4" />
@@ -81,14 +82,24 @@ export function Portfolio({ content = defaultContent, items = defaultProjects })
               className={project.size === "lg" ? "md:col-span-2" : ""}
             >
               <Link
-                href={resolved.linkHref}
+                href={project.slug ? `/portfolio/${project.slug}` : allProjectsHref}
                 className="group relative block overflow-hidden rounded-3xl bg-card border border-border aspect-4/3 hover:shadow-glow transition-all duration-500"
               >
-                <div
-                  className={`relative aspect-4/3 overflow-hidden rounded-2xl bg-linear-to-br ${
-                    project.color || "from-accent/40 to-accent"
-                  } shadow-elegant transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-lg`}
-                >
+                <div className="relative aspect-4/3 overflow-hidden rounded-2xl shadow-elegant transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-lg">
+                  {project.cover_image_url ? (
+                    <img
+                      src={project.cover_image_url}
+                      alt={project.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className={`absolute inset-0 bg-linear-to-br ${
+                        project.color || "from-accent/40 to-accent"
+                      }`}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,oklch(1_0_0/0.25),transparent_55%)]" />
                   <div className="absolute inset-0 noise" />
                   <div className="relative h-full flex flex-col justify-between p-6 sm:p-8">

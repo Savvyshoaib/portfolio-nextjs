@@ -9,6 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@editorjs/code": "^2.9.4",
+    "@editorjs/delimiter": "^1.4.2",
+    "@editorjs/editorjs": "^2.31.6",
+    "@editorjs/header": "^2.8.8",
+    "@editorjs/list": "^2.0.9",
+    "@editorjs/quote": "^2.7.6",
     "@supabase/supabase-js": "^2.105.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",

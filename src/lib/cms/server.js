@@ -3,6 +3,11 @@ import { unstable_cache, revalidateTag } from "next/cache";
 import { CMS_CONTENT_TYPES, DEFAULT_CONTENT_ITEMS, DEFAULT_SITE_SECTIONS, DEFAULT_SITE_SETTINGS, deepMerge } from "./defaults";
 import { SUPABASE_ENV } from "@/lib/supabase/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { normalizePortfolioPayload } from "./portfolio-detail";
+import { normalizeServicePayload } from "./service-detail";
+import { normalizeBlogPayload } from "./blog-detail";
+import { normalizeEditorJsData, parseEditorJsContent } from "./editorjs-content";
+import { normalizeItemSeo } from "./item-seo";
 
 const TABLES = {
   settings: "site_settings",
@@ -29,6 +34,42 @@ function toSlug(input = "") {
     .slice(0, 120);
 }
 
+function normalizeStoredRichContent(value) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  const parsed = parseEditorJsContent(value);
+  if (parsed) {
+    return JSON.stringify(normalizeEditorJsData(parsed));
+  }
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  return String(value);
+}
+
+function normalizePayloadSeoByType(type, payload, { title = "", excerpt = "" } = {}) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (type !== "services" && type !== "portfolio" && type !== "blog") {
+    return payload;
+  }
+
+  const baseDescription = excerpt || payload.hero?.description || payload.heroDescription || "";
+  return {
+    ...payload,
+    seo: normalizeItemSeo(payload.seo, {
+      metaTitle: title,
+      metaDescription: baseDescription,
+    }),
+  };
+}
+
 function withDefaultsForType(type, rows = []) {
   const defaults = clone(DEFAULT_CONTENT_ITEMS[type] || []);
   if (!rows.length) {
@@ -36,6 +77,16 @@ function withDefaultsForType(type, rows = []) {
       id: `default-${type}-${index + 1}`,
       type,
       ...item,
+      slug: item.slug || toSlug(item.title || ""),
+      content: normalizeStoredRichContent(item.content || ""),
+      payload:
+        type === "portfolio"
+          ? normalizePortfolioPayload(item.payload || {})
+          : type === "services"
+            ? normalizeServicePayload(item.payload || {}, { title: item.title || "" })
+            : type === "blog"
+              ? normalizeBlogPayload(item.payload || {}, { excerpt: item.excerpt || "", tags: safeArray(item.tags) })
+            : item.payload || {},
     }));
   }
 
@@ -45,7 +96,15 @@ function withDefaultsForType(type, rows = []) {
     title: row.title || "",
     slug: row.slug || toSlug(row.title || ""),
     excerpt: row.excerpt || "",
-    payload: row.payload || {},
+    content: normalizeStoredRichContent(row.content || ""),
+    payload:
+      type === "portfolio"
+        ? normalizePortfolioPayload(row.payload || {})
+        : type === "services"
+          ? normalizeServicePayload(row.payload || {}, { title: row.title || "" })
+          : type === "blog"
+            ? normalizeBlogPayload(row.payload || {}, { excerpt: row.excerpt || "", tags: safeArray(row.tags) })
+          : row.payload || {},
     cover_image_url: row.cover_image_url || "",
     tags: safeArray(row.tags),
     published: row.published ?? true,
@@ -241,18 +300,24 @@ export async function saveSection(key, value) {
 }
 
 export async function getContentItems(type, { publishedOnly = false, featuredOnly = false } = {}) {
+  console.log(`getContentItems called for type: ${type}, publishedOnly: ${publishedOnly}`);
+  console.log(`SUPABASE_ENV:`, {
+    url: SUPABASE_ENV.url,
+    hasPublicEnv: SUPABASE_ENV.hasPublicEnv,
+    hasServiceRoleEnv: SUPABASE_ENV.hasServiceRoleEnv
+  });
+  
   if (!CMS_CONTENT_TYPES.includes(type)) {
+    console.log(`Invalid content type: ${type}`);
     return [];
   }
 
-  if (!hasCmsEnv()) {
-    return clone(DEFAULT_CONTENT_ITEMS[type] || []);
-  }
-
+  // Force database connection even if environment check fails
   await trySeedDefaults();
   const supabase = getReadClient();
   if (!supabase) {
-    return clone(DEFAULT_CONTENT_ITEMS[type] || []);
+    console.log("No Supabase client available, returning defaults");
+    return withDefaultsForType(type, []);
   }
 
   let query = supabase
@@ -270,7 +335,18 @@ export async function getContentItems(type, { publishedOnly = false, featuredOnl
     query = query.eq("featured", true);
   }
 
-  const { data } = await query;
+  const { data, error } = await query;
+  
+  if (error) {
+    console.error(`Database error for ${type}:`, error);
+    return withDefaultsForType(type, []);
+  }
+  
+  console.log(`Found ${data?.length || 0} items for type: ${type}`);
+  if (type === 'portfolio') {
+    console.log('Portfolio items:', data?.map(item => ({id: item.id, title: item.title, slug: item.slug})) || []);
+  }
+  
   return withDefaultsForType(type, data || []);
 }
 
@@ -296,13 +372,44 @@ export async function saveContentItem(type, payload) {
     return { ok: false, error: "Supabase environment variables are missing." };
   }
 
+  const normalizedPayload =
+    type === "portfolio"
+      ? normalizePortfolioPayload(payload.payload || {})
+      : type === "services"
+        ? normalizeServicePayload(payload.payload || {}, { title: payload.title || "" })
+        : type === "blog"
+          ? normalizeBlogPayload(payload.payload || {}, { excerpt: payload.excerpt || "", tags: safeArray(payload.tags) })
+      : payload.payload || {};
+
+  const normalizedPayloadWithSeo = normalizePayloadSeoByType(type, normalizedPayload, {
+    title: payload.title || "",
+    excerpt: payload.excerpt || "",
+  });
+
+  const inputSlug = toSlug(payload.slug || "");
+  let resolvedSlug = inputSlug || toSlug(payload.title || "");
+
+  if (!inputSlug && payload.id) {
+    const { data: existingRow } = await supabase
+      .from(TABLES.content)
+      .select("slug")
+      .eq("id", payload.id)
+      .eq("type", type)
+      .maybeSingle();
+
+    if (existingRow?.slug) {
+      resolvedSlug = existingRow.slug;
+    }
+  }
+
   const item = {
     id: payload.id || undefined,
     type,
     title: payload.title || "",
-    slug: payload.slug || toSlug(payload.title || ""),
+    slug: resolvedSlug,
     excerpt: payload.excerpt || "",
-    payload: payload.payload || {},
+    content: normalizeStoredRichContent(payload.content || ""),
+    payload: normalizedPayloadWithSeo,
     cover_image_url: payload.cover_image_url || "",
     tags: safeArray(payload.tags),
     published: payload.published ?? true,

@@ -1,467 +1,775 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Save, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Loader2, Plus, Save, Trash2, Upload } from "lucide-react";
 import { adminApi } from "@/lib/cms/admin-client";
-import { CMS_CONTENT_TYPES } from "@/lib/cms/constants";
 import { cn } from "@/lib/utils";
+import {
+  HOME_SECTION_DEFINITIONS,
+  HOME_SECTION_TYPE_OPTIONS,
+  createHomeLayoutItem,
+  normalizeHomeLayout,
+  normalizeHomeSectionContent,
+  serializeHomeLayout,
+} from "@/lib/cms/home-layout";
 
-const typeLabels = {
-  services: "Services",
-  portfolio: "Portfolio",
-  blog: "Blog Posts",
-  testimonials: "Testimonials",
-  tech_stack: "Tech Stack",
-};
+const INPUT_CLASSNAME =
+  "w-full rounded-xl border border-input bg-card px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all";
+const TEXTAREA_CLASSNAME =
+  "w-full rounded-xl border border-input bg-card px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all resize-none";
 
-function defaultItem(type) {
-  return {
-    id: "",
-    title: "",
-    slug: "",
-    excerpt: "",
-    cover_image_url: "",
-    tagsCsv: "",
-    display_order: 0,
-    published: true,
-    featured: type !== "tech_stack",
-    payloadText: "{}",
-  };
+function parseLineList(value) {
+  return String(value || "")
+    .split(/\r?\n/g)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
 }
 
-function normalizeItemForEditor(type, item) {
-  return {
-    id: item?.id || "",
-    title: item?.title || "",
-    slug: item?.slug || "",
-    excerpt: item?.excerpt || "",
-    cover_image_url: item?.cover_image_url || "",
-    tagsCsv: Array.isArray(item?.tags) ? item.tags.join(", ") : "",
-    display_order: Number(item?.display_order ?? 0),
-    published: item?.published ?? true,
-    featured: type !== "tech_stack" ? item?.featured ?? true : false,
-    payloadText: JSON.stringify(item?.payload || {}, null, 2),
-  };
-}
-
-function parseJson(text, fallback = {}) {
-  try {
-    return JSON.parse(text || "{}");
-  } catch {
-    return fallback;
+function toLineList(value) {
+  if (!Array.isArray(value)) {
+    return "";
   }
+
+  return value.join("\n");
 }
 
-export default function ContentManagementPage() {
+function parseHeroStats(value) {
+  return String(value || "")
+    .split(/\r?\n/g)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [valuePart = "", ...labelParts] = line.split("|");
+      return {
+        value: valuePart.trim(),
+        label: labelParts.join("|").trim(),
+      };
+    })
+    .filter((item) => item.value || item.label);
+}
+
+function toHeroStats(value) {
+  if (!Array.isArray(value)) {
+    return "";
+  }
+
+  return value.map((item) => `${item?.value || ""} | ${item?.label || ""}`).join("\n");
+}
+
+function parseTestimonialItems(value) {
+  return String(value || "")
+    .split(/\r?\n/g)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [quotePart = "", namePart = "", ...roleParts] = line.split("|");
+      return {
+        quote: quotePart.trim(),
+        name: namePart.trim(),
+        role: roleParts.join("|").trim(),
+      };
+    })
+    .filter((item) => item.quote || item.name || item.role);
+}
+
+function toTestimonialItems(value) {
+  if (!Array.isArray(value)) {
+    return "";
+  }
+
+  return value
+    .map((item) => `${item?.quote || ""} | ${item?.name || ""} | ${item?.role || ""}`)
+    .join("\n");
+}
+
+function Field({ label, hint, children }) {
+  return (
+    <label className="space-y-2 block">
+      <span className="text-xs uppercase tracking-widest text-muted-foreground">{label}</span>
+      {children}
+      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
+    </label>
+  );
+}
+
+export default function HomeSectionsPage() {
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("sections");
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [sections, setSections] = useState({});
-  const [selectedSectionKey, setSelectedSectionKey] = useState("");
-  const [sectionEditor, setSectionEditor] = useState("{}");
-  const [content, setContent] = useState({
-    services: [],
-    portfolio: [],
-    blog: [],
-    testimonials: [],
-    tech_stack: [],
-  });
-  const [editor, setEditor] = useState(defaultItem("services"));
+  const [layoutItems, setLayoutItems] = useState([]);
+  const [selectedId, setSelectedId] = useState("");
+  const [addType, setAddType] = useState("hero");
 
   useEffect(() => {
-    const run = async () => {
+    let cancelled = false;
+
+    async function loadSections() {
       try {
-        const [sectionsResponse, ...contentResponses] = await Promise.all([
-          adminApi.getSections(),
-          ...CMS_CONTENT_TYPES.map((type) => adminApi.getContent(type)),
-        ]);
-
-        const nextSections = sectionsResponse.sections || {};
-        setSections(nextSections);
-        const keys = Object.keys(nextSections);
-        const firstKey = keys[0] || "hero";
-        setSelectedSectionKey(firstKey);
-        setSectionEditor(JSON.stringify(nextSections[firstKey] || {}, null, 2));
-
-        const nextContent = {};
-        contentResponses.forEach((response, index) => {
-          nextContent[CMS_CONTENT_TYPES[index]] = response.items || [];
-        });
-        setContent(nextContent);
-      } catch (requestError) {
-        setError(requestError.message || "Failed to load content.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    run();
-  }, []);
-
-  const activeType = activeTab === "sections" ? null : activeTab;
-  const activeItems = useMemo(() => (activeType ? content[activeType] || [] : []), [activeType, content]);
-
-  const onSelectSection = (key) => {
-    setSelectedSectionKey(key);
-    setSectionEditor(JSON.stringify(sections[key] || {}, null, 2));
-    setSuccess("");
-    setError("");
-  };
-
-  const onSaveSection = async () => {
-    if (!selectedSectionKey) return;
-
-    const parsed = parseJson(sectionEditor, null);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      setError("Section JSON must be a valid object.");
-      return;
-    }
-
-    setError("");
-    setSuccess("");
-    try {
-      const response = await adminApi.saveSection(selectedSectionKey, parsed);
-      setSections((prev) => ({ ...prev, [selectedSectionKey]: response.value }));
-      setSectionEditor(JSON.stringify(response.value, null, 2));
-      setSuccess(`Saved section: ${selectedSectionKey}`);
-    } catch (saveError) {
-      setError(saveError.message || "Failed to save section.");
-    }
-  };
-
-  const onSelectItem = (type, item) => {
-    setActiveTab(type);
-    setEditor(normalizeItemForEditor(type, item));
-    setSuccess("");
-    setError("");
-  };
-
-  const onCreateNew = (type) => {
-    setActiveTab(type);
-    setEditor(defaultItem(type));
-    setSuccess("");
-    setError("");
-  };
-
-  const onSaveItem = async () => {
-    if (!activeType) return;
-    if (!editor.title.trim()) {
-      setError("Title is required.");
-      return;
-    }
-
-    const payload = parseJson(editor.payloadText, null);
-    if (payload === null || Array.isArray(payload) || typeof payload !== "object") {
-      setError("Payload JSON must be a valid object.");
-      return;
-    }
-
-    setError("");
-    setSuccess("");
-
-    try {
-      const itemPayload = {
-        id: editor.id || undefined,
-        title: editor.title.trim(),
-        slug: editor.slug.trim(),
-        excerpt: editor.excerpt,
-        cover_image_url: editor.cover_image_url,
-        tags: editor.tagsCsv
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter(Boolean),
-        display_order: Number(editor.display_order || 0),
-        published: Boolean(editor.published),
-        featured: activeType === "tech_stack" ? false : Boolean(editor.featured),
-        payload,
-      };
-
-      const response = await adminApi.saveContent(activeType, itemPayload);
-      const updatedItem = response.item;
-
-      setContent((prev) => {
-        const items = [...(prev[activeType] || [])];
-        const index = items.findIndex((item) => item.id === updatedItem.id);
-        if (index >= 0) {
-          items[index] = updatedItem;
-        } else {
-          items.push(updatedItem);
+        setError("");
+        const response = await adminApi.getSections();
+        if (cancelled) {
+          return;
         }
 
-        items.sort((a, b) => {
-          const orderA = Number(a.display_order ?? 0);
-          const orderB = Number(b.display_order ?? 0);
-          return orderA - orderB;
-        });
-
-        return { ...prev, [activeType]: items };
-      });
-
-      setEditor(normalizeItemForEditor(activeType, updatedItem));
-      setSuccess(`${typeLabels[activeType]} item saved.`);
-    } catch (saveError) {
-      setError(saveError.message || "Failed to save item.");
+        const sections = response.sections || {};
+        const items = normalizeHomeLayout(sections.homeLayout, sections);
+        setLayoutItems(items);
+        setSelectedId(items[0]?.id || "");
+      } catch (requestError) {
+        if (cancelled) {
+          return;
+        }
+        setError(requestError.message || "Failed to load homepage sections.");
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
     }
-  };
 
-  const onDeleteItem = async () => {
-    if (!activeType || !editor.id) return;
-    const shouldDelete = window.confirm("Delete this item?");
-    if (!shouldDelete) return;
+    void loadSections();
 
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const selectedItem = useMemo(
+    () => layoutItems.find((item) => item.id === selectedId) || null,
+    [layoutItems, selectedId]
+  );
+
+  function replaceLayoutItems(nextItems) {
+    setLayoutItems(nextItems);
+    if (!nextItems.some((item) => item.id === selectedId)) {
+      setSelectedId(nextItems[0]?.id || "");
+    }
+  }
+
+  function updateSelectedContent(nextContent) {
+    if (!selectedItem) {
+      return;
+    }
+
+    replaceLayoutItems(
+      layoutItems.map((item) => {
+        if (item.id !== selectedItem.id) {
+          return item;
+        }
+
+        return {
+          ...item,
+          content: normalizeHomeSectionContent(item.type, nextContent),
+        };
+      })
+    );
+    setSuccess("");
+  }
+
+  function moveItem(itemId, direction) {
+    const currentIndex = layoutItems.findIndex((item) => item.id === itemId);
+    if (currentIndex < 0) {
+      return;
+    }
+
+    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= layoutItems.length) {
+      return;
+    }
+
+    const nextItems = [...layoutItems];
+    const [moved] = nextItems.splice(currentIndex, 1);
+    nextItems.splice(targetIndex, 0, moved);
+    replaceLayoutItems(nextItems);
+    setSuccess("");
+  }
+
+  function removeItem(itemId) {
+    const shouldDelete = window.confirm("Remove this section from homepage layout?");
+    if (!shouldDelete) {
+      return;
+    }
+
+    const nextItems = layoutItems.filter((item) => item.id !== itemId);
+    replaceLayoutItems(nextItems);
+    setSuccess("");
+  }
+
+  function addItem() {
+    const nextItem = createHomeLayoutItem(addType);
+    if (!nextItem) {
+      return;
+    }
+
+    const nextItems = [...layoutItems, nextItem];
+    replaceLayoutItems(nextItems);
+    setSelectedId(nextItem.id);
+    setSuccess("");
+  }
+
+  async function handleAboutImageUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file || !selectedItem || selectedItem.type !== "about") {
+      return;
+    }
+
+    setUploading(true);
+    setError("");
+
+    try {
+      const result = await adminApi.uploadFile(file, "about_founder");
+      updateSelectedContent({
+        ...(selectedItem.content || {}),
+        founderImageUrl: result?.url || "",
+      });
+      setSuccess("About image uploaded successfully.");
+    } catch (requestError) {
+      setError(requestError.message || "Failed to upload about image.");
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
+  }
+
+  async function saveLayout() {
+    if (!layoutItems.length) {
+      setError("At least one section is required.");
+      return;
+    }
+
+    setSaving(true);
     setError("");
     setSuccess("");
+
     try {
-      await adminApi.deleteContent(activeType, editor.id);
-      setContent((prev) => ({
-        ...prev,
-        [activeType]: (prev[activeType] || []).filter((item) => item.id !== editor.id),
-      }));
-      setEditor(defaultItem(activeType));
-      setSuccess("Item deleted.");
-    } catch (deleteError) {
-      setError(deleteError.message || "Failed to delete item.");
+      const payload = serializeHomeLayout(layoutItems);
+      await adminApi.saveSection("homeLayout", payload);
+      const normalized = normalizeHomeLayout(payload);
+      setLayoutItems(normalized);
+      setSelectedId((prev) => {
+        if (normalized.some((item) => item.id === prev)) {
+          return prev;
+        }
+        return normalized[0]?.id || "";
+      });
+      setSuccess("Homepage layout saved successfully.");
+    } catch (requestError) {
+      setError(requestError.message || "Failed to save homepage layout.");
+    } finally {
+      setSaving(false);
     }
-  };
+  }
 
   if (loading) {
-    return <p className="text-sm text-muted-foreground">Loading content management...</p>;
+    return <p className="text-sm text-muted-foreground">Loading homepage section builder...</p>;
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <p className="text-xs uppercase tracking-[0.3em] text-accent font-semibold">Content Management</p>
-        <h1 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight">Dynamic Sections and Collections</h1>
+        <p className="text-xs uppercase tracking-[0.3em] text-accent font-semibold">Content</p>
+        <h1 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight">Home Sections Builder</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Update homepage sections and manage all structured content collections that power your frontend.
+          Add, remove, reorder, and edit homepage sections with structured fields. No JSON required.
         </p>
       </div>
 
       {error ? (
-        <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>
+        <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </p>
       ) : null}
       {success ? (
         <p className="rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-accent">{success}</p>
       ) : null}
 
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab("sections")}
-          className={cn(
-            "rounded-lg px-3 py-2 text-sm transition-colors",
-            activeTab === "sections" ? "bg-accent/15 text-accent border border-accent/30" : "border border-border hover:bg-secondary/70"
-          )}
-        >
-          Website Sections
-        </button>
-        {CMS_CONTENT_TYPES.map((type) => (
+      <div className="grid gap-5 xl:grid-cols-[320px_1fr]">
+        <aside className="rounded-2xl border border-border bg-background p-4 space-y-4 h-fit">
+          <div className="space-y-3">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Add New Section</p>
+            <div className="grid gap-2">
+              <select
+                value={addType}
+                onChange={(event) => setAddType(event.target.value)}
+                className={INPUT_CLASSNAME}
+              >
+                {HOME_SECTION_TYPE_OPTIONS.map((type) => (
+                  <option key={type} value={type}>
+                    {HOME_SECTION_DEFINITIONS[type].label}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={addItem}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm hover:bg-secondary/70 transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+                Add Section
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Section Order</p>
+            <div className="space-y-2">
+              {layoutItems.map((item, index) => {
+                const definition = HOME_SECTION_DEFINITIONS[item.type];
+                const isSelected = selectedId === item.id;
+
+                return (
+                  <div
+                    key={item.id}
+                    className={cn(
+                      "rounded-xl border p-3 transition-colors",
+                      isSelected ? "border-accent/40 bg-accent/10" : "border-border bg-card"
+                    )}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedId(item.id)}
+                      className="w-full text-left"
+                    >
+                      <p className="text-sm font-medium">{definition?.label || item.type}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">#{index + 1}</p>
+                    </button>
+                    <div className="mt-3 flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => moveItem(item.id, "up")}
+                        disabled={index === 0}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border hover:bg-secondary/70 disabled:opacity-40 disabled:cursor-not-allowed"
+                        title="Move up"
+                      >
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveItem(item.id, "down")}
+                        disabled={index === layoutItems.length - 1}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border hover:bg-secondary/70 disabled:opacity-40 disabled:cursor-not-allowed"
+                        title="Move down"
+                      >
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.id)}
+                        className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-lg border border-destructive/40 text-destructive hover:bg-destructive/10"
+                        title="Remove section"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <button
-            key={type}
             type="button"
-            onClick={() => {
-              setActiveTab(type);
-              setEditor(defaultItem(type));
-            }}
-            className={cn(
-              "rounded-lg px-3 py-2 text-sm transition-colors",
-              activeTab === type ? "bg-accent/15 text-accent border border-accent/30" : "border border-border hover:bg-secondary/70"
-            )}
+            onClick={saveLayout}
+            disabled={saving}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-foreground text-background px-4 py-3 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
           >
-            {typeLabels[type]}
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            {saving ? "Saving..." : "Save Homepage Layout"}
           </button>
-        ))}
+        </aside>
+
+        <div className="rounded-2xl border border-border bg-background p-5 sm:p-6">
+          {!selectedItem ? (
+            <p className="text-sm text-muted-foreground">Select a section to edit its fields.</p>
+          ) : (
+            <SectionEditor
+              item={selectedItem}
+              uploading={uploading}
+              onAboutUpload={handleAboutImageUpload}
+              onContentChange={updateSelectedContent}
+            />
+          )}
+        </div>
       </div>
+    </div>
+  );
+}
 
-      {activeTab === "sections" ? (
-        <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-          <aside className="rounded-2xl border border-border p-3 bg-background h-fit">
-            <p className="px-3 py-2 text-xs uppercase tracking-widest text-muted-foreground">Section Keys</p>
-            <div className="space-y-1">
-              {Object.keys(sections).map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => onSelectSection(key)}
-                  className={cn(
-                    "w-full text-left rounded-lg px-3 py-2 text-sm transition-colors",
-                    selectedSectionKey === key
-                      ? "bg-accent/15 text-accent border border-accent/30"
-                      : "hover:bg-secondary/70 border border-transparent"
-                  )}
-                >
-                  {key}
-                </button>
-              ))}
-            </div>
-          </aside>
+function SectionEditor({ item, uploading, onAboutUpload, onContentChange }) {
+  const definition = HOME_SECTION_DEFINITIONS[item.type];
+  const editable = Boolean(definition?.editable);
 
-          <div className="rounded-2xl border border-border p-5 bg-background space-y-4">
-            <p className="text-sm font-semibold">{selectedSectionKey}</p>
-            <textarea
-              rows={18}
-              value={sectionEditor}
-              onChange={(event) => setSectionEditor(event.target.value)}
-              className="w-full rounded-xl border border-input bg-card px-4 py-3 text-sm font-mono focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all"
+  if (!editable) {
+    return (
+      <div className="rounded-xl border border-border bg-card p-5">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">Selected Section</p>
+        <h2 className="mt-2 text-xl font-semibold">{definition?.label || item.type}</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          This section is powered by dedicated collection content (and list limits) instead of local form fields.
+        </p>
+      </div>
+    );
+  }
+
+  const content = item.content || {};
+
+  if (item.type === "hero") {
+    return (
+      <div className="space-y-5">
+        <h2 className="text-xl font-semibold">{definition.label}</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Badge Text">
+            <input
+              type="text"
+              value={content.badgeText || ""}
+              onChange={(event) => onContentChange({ ...content, badgeText: event.target.value })}
+              className={INPUT_CLASSNAME}
             />
-            <button
-              type="button"
-              onClick={onSaveSection}
-              className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background px-5 py-3 text-sm font-medium hover:opacity-90 transition-opacity"
-            >
-              <Save className="h-4 w-4" />
-              Save section JSON
-            </button>
-          </div>
+          </Field>
+          <Field label="Heading Top">
+            <input
+              type="text"
+              value={content.headingTop || ""}
+              onChange={(event) => onContentChange({ ...content, headingTop: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Heading Emphasis">
+            <input
+              type="text"
+              value={content.headingEmphasis || ""}
+              onChange={(event) => onContentChange({ ...content, headingEmphasis: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Heading Bottom">
+            <input
+              type="text"
+              value={content.headingBottom || ""}
+              onChange={(event) => onContentChange({ ...content, headingBottom: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Primary CTA Label">
+            <input
+              type="text"
+              value={content.primaryCtaLabel || ""}
+              onChange={(event) => onContentChange({ ...content, primaryCtaLabel: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Primary CTA Link">
+            <input
+              type="text"
+              value={content.primaryCtaLink || ""}
+              onChange={(event) => onContentChange({ ...content, primaryCtaLink: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Secondary CTA Label">
+            <input
+              type="text"
+              value={content.secondaryCtaLabel || ""}
+              onChange={(event) => onContentChange({ ...content, secondaryCtaLabel: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Secondary CTA Link">
+            <input
+              type="text"
+              value={content.secondaryCtaLink || ""}
+              onChange={(event) => onContentChange({ ...content, secondaryCtaLink: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
         </div>
-      ) : (
-        <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-          <aside className="rounded-2xl border border-border p-3 bg-background h-fit">
-            <div className="flex items-center justify-between px-3 py-2">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">{typeLabels[activeType]}</p>
-              <button
-                type="button"
-                onClick={() => onCreateNew(activeType)}
-                className="inline-flex items-center gap-1 rounded-lg border border-border px-2 py-1 text-xs hover:bg-secondary/70 transition-colors"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                New
-              </button>
-            </div>
-            <div className="space-y-1 max-h-[460px] overflow-auto">
-              {activeItems.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => onSelectItem(activeType, item)}
-                  className={cn(
-                    "w-full text-left rounded-lg px-3 py-2 text-sm transition-colors border",
-                    editor.id === item.id
-                      ? "bg-accent/15 text-accent border-accent/30"
-                      : "border-transparent hover:bg-secondary/70"
-                  )}
-                >
-                  <p className="font-medium line-clamp-1">{item.title}</p>
-                  <p className="text-xs text-muted-foreground">Order: {item.display_order ?? 0}</p>
-                </button>
-              ))}
-            </div>
-          </aside>
+        <Field label="Description">
+          <textarea
+            rows={4}
+            value={content.description || ""}
+            onChange={(event) => onContentChange({ ...content, description: event.target.value })}
+            className={TEXTAREA_CLASSNAME}
+          />
+        </Field>
+        <Field label="Stats" hint="One line per stat: value | label">
+          <textarea
+            rows={6}
+            value={toHeroStats(content.stats)}
+            onChange={(event) => onContentChange({ ...content, stats: parseHeroStats(event.target.value) })}
+            className={TEXTAREA_CLASSNAME}
+          />
+        </Field>
+      </div>
+    );
+  }
 
-          <div className="rounded-2xl border border-border p-5 bg-background space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Title" value={editor.title} onChange={(value) => setEditor((prev) => ({ ...prev, title: value }))} />
-              <Field label="Slug" value={editor.slug} onChange={(value) => setEditor((prev) => ({ ...prev, slug: value }))} />
-              <Field label="Display Order" type="number" value={editor.display_order} onChange={(value) => setEditor((prev) => ({ ...prev, display_order: Number(value || 0) }))} />
-              <Field label="Cover Image URL" value={editor.cover_image_url} onChange={(value) => setEditor((prev) => ({ ...prev, cover_image_url: value }))} />
-            </div>
+  if (item.type === "clients") {
+    return (
+      <div className="space-y-5">
+        <h2 className="text-xl font-semibold">{definition.label}</h2>
+        <Field label="Eyebrow">
+          <input
+            type="text"
+            value={content.eyebrow || ""}
+            onChange={(event) => onContentChange({ ...content, eyebrow: event.target.value })}
+            className={INPUT_CLASSNAME}
+          />
+        </Field>
+        <Field label="Logo Labels" hint="One logo label per line">
+          <textarea
+            rows={8}
+            value={toLineList(content.logos)}
+            onChange={(event) => onContentChange({ ...content, logos: parseLineList(event.target.value) })}
+            className={TEXTAREA_CLASSNAME}
+          />
+        </Field>
+      </div>
+    );
+  }
 
-            <Textarea
-              label="Excerpt / Summary"
-              rows={3}
-              value={editor.excerpt}
-              onChange={(value) => setEditor((prev) => ({ ...prev, excerpt: value }))}
+  if (item.type === "about") {
+    return (
+      <div className="space-y-5">
+        <h2 className="text-xl font-semibold">{definition.label}</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Eyebrow">
+            <input
+              type="text"
+              value={content.eyebrow || ""}
+              onChange={(event) => onContentChange({ ...content, eyebrow: event.target.value })}
+              className={INPUT_CLASSNAME}
             />
-
-            <Field
-              label="Tags (comma separated)"
-              value={editor.tagsCsv}
-              onChange={(value) => setEditor((prev) => ({ ...prev, tagsCsv: value }))}
+          </Field>
+          <Field label="Title Emphasis">
+            <input
+              type="text"
+              value={content.titleEmphasis || ""}
+              onChange={(event) => onContentChange({ ...content, titleEmphasis: event.target.value })}
+              className={INPUT_CLASSNAME}
             />
-
-            <div className="grid gap-3 md:grid-cols-2">
-              <Toggle
-                label="Published"
-                checked={Boolean(editor.published)}
-                onChange={(checked) => setEditor((prev) => ({ ...prev, published: checked }))}
+          </Field>
+          <Field label="Founder Name">
+            <input
+              type="text"
+              value={content.founderName || ""}
+              onChange={(event) => onContentChange({ ...content, founderName: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Founder Role">
+            <input
+              type="text"
+              value={content.founderRole || ""}
+              onChange={(event) => onContentChange({ ...content, founderRole: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+        </div>
+        <Field label="Title">
+          <input
+            type="text"
+            value={content.title || ""}
+            onChange={(event) => onContentChange({ ...content, title: event.target.value })}
+            className={INPUT_CLASSNAME}
+          />
+        </Field>
+        <Field label="Description">
+          <textarea
+            rows={5}
+            value={content.description || ""}
+            onChange={(event) => onContentChange({ ...content, description: event.target.value })}
+            className={TEXTAREA_CLASSNAME}
+          />
+        </Field>
+        <Field label="Bullet Points" hint="One bullet per line">
+          <textarea
+            rows={5}
+            value={toLineList(content.bullets)}
+            onChange={(event) => onContentChange({ ...content, bullets: parseLineList(event.target.value) })}
+            className={TEXTAREA_CLASSNAME}
+          />
+        </Field>
+        <Field label="Founder Image URL">
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={content.founderImageUrl || ""}
+                onChange={(event) => onContentChange({ ...content, founderImageUrl: event.target.value })}
+                className={INPUT_CLASSNAME}
+                placeholder="https://example.com/founder.jpg"
               />
-              {activeType !== "tech_stack" ? (
-                <Toggle
-                  label="Featured"
-                  checked={Boolean(editor.featured)}
-                  onChange={(checked) => setEditor((prev) => ({ ...prev, featured: checked }))}
+              <label className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-input bg-card px-3 py-2 text-sm cursor-pointer hover:bg-secondary/60 transition-colors">
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/avif"
+                  className="hidden"
+                  onChange={onAboutUpload}
+                  disabled={uploading}
                 />
-              ) : null}
+                {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                {uploading ? "Uploading" : "Upload"}
+              </label>
             </div>
-
-            <Textarea
-              label="Payload JSON (type-specific fields)"
-              rows={10}
-              value={editor.payloadText}
-              onChange={(value) => setEditor((prev) => ({ ...prev, payloadText: value }))}
-              mono
-            />
-
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={onSaveItem}
-                className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background px-5 py-3 text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                <Save className="h-4 w-4" />
-                Save item
-              </button>
-              {editor.id ? (
-                <button
-                  type="button"
-                  onClick={onDeleteItem}
-                  className="inline-flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive px-5 py-3 text-sm font-medium hover:bg-destructive/15 transition-colors"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete item
-                </button>
-              ) : null}
-            </div>
+            {content.founderImageUrl ? (
+              <div className="rounded-xl border border-border p-2">
+                <img
+                  src={content.founderImageUrl}
+                  alt={content.founderName || "Founder"}
+                  className="h-44 w-full rounded-lg object-cover"
+                />
+              </div>
+            ) : null}
           </div>
+        </Field>
+      </div>
+    );
+  }
+
+  if (item.type === "cta") {
+    return (
+      <div className="space-y-5">
+        <h2 className="text-xl font-semibold">{definition.label}</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Eyebrow">
+            <input
+              type="text"
+              value={content.eyebrow || ""}
+              onChange={(event) => onContentChange({ ...content, eyebrow: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="CTA Label">
+            <input
+              type="text"
+              value={content.ctaLabel || ""}
+              onChange={(event) => onContentChange({ ...content, ctaLabel: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="CTA Link">
+            <input
+              type="text"
+              value={content.ctaLink || ""}
+              onChange={(event) => onContentChange({ ...content, ctaLink: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
         </div>
-      )}
-    </div>
-  );
+        <Field label="Title">
+          <textarea
+            rows={3}
+            value={content.title || ""}
+            onChange={(event) => onContentChange({ ...content, title: event.target.value })}
+            className={TEXTAREA_CLASSNAME}
+          />
+        </Field>
+        <Field label="Subtitle">
+          <textarea
+            rows={3}
+            value={content.subtitle || ""}
+            onChange={(event) => onContentChange({ ...content, subtitle: event.target.value })}
+            className={TEXTAREA_CLASSNAME}
+          />
+        </Field>
+      </div>
+    );
+  }
+
+  if (item.type === "techStack") {
+    return (
+      <div className="space-y-5">
+        <h2 className="text-xl font-semibold">{definition.label}</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Eyebrow">
+            <input
+              type="text"
+              value={content.eyebrow || ""}
+              onChange={(event) => onContentChange({ ...content, eyebrow: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Title Emphasis">
+            <input
+              type="text"
+              value={content.titleEmphasis || ""}
+              onChange={(event) => onContentChange({ ...content, titleEmphasis: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+        </div>
+        <Field label="Title">
+          <input
+            type="text"
+            value={content.title || ""}
+            onChange={(event) => onContentChange({ ...content, title: event.target.value })}
+            className={INPUT_CLASSNAME}
+          />
+        </Field>
+        <Field label="Stack Items" hint="One stack item per line">
+          <textarea
+            rows={10}
+            value={toLineList(content.items)}
+            onChange={(event) => onContentChange({ ...content, items: parseLineList(event.target.value) })}
+            className={TEXTAREA_CLASSNAME}
+          />
+        </Field>
+      </div>
+    );
+  }
+
+  if (item.type === "testimonials") {
+    return (
+      <div className="space-y-5">
+        <h2 className="text-xl font-semibold">{definition.label}</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Eyebrow">
+            <input
+              type="text"
+              value={content.eyebrow || ""}
+              onChange={(event) => onContentChange({ ...content, eyebrow: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Title Emphasis">
+            <input
+              type="text"
+              value={content.titleEmphasis || ""}
+              onChange={(event) => onContentChange({ ...content, titleEmphasis: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+        </div>
+        <Field label="Title">
+          <input
+            type="text"
+            value={content.title || ""}
+            onChange={(event) => onContentChange({ ...content, title: event.target.value })}
+            className={INPUT_CLASSNAME}
+          />
+        </Field>
+        <Field
+          label="Testimonials"
+          hint="One testimonial per line: quote | name | role"
+        >
+          <textarea
+            rows={10}
+            value={toTestimonialItems(content.items)}
+            onChange={(event) =>
+              onContentChange({
+                ...content,
+                items: parseTestimonialItems(event.target.value),
+              })
+            }
+            className={TEXTAREA_CLASSNAME}
+          />
+        </Field>
+      </div>
+    );
+  }
+
+  return <p className="text-sm text-muted-foreground">No editable fields for this section type.</p>;
 }
 
-function Field({ label, value, onChange, type = "text" }) {
-  return (
-    <div className="space-y-2">
-      <label className="text-xs uppercase tracking-widest text-muted-foreground">{label}</label>
-      <input
-        type={type}
-        value={value ?? ""}
-        onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-xl border border-input bg-card px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all"
-      />
-    </div>
-  );
-}
-
-function Textarea({ label, value, onChange, rows = 4, mono = false }) {
-  return (
-    <div className="space-y-2">
-      <label className="text-xs uppercase tracking-widest text-muted-foreground">{label}</label>
-      <textarea
-        rows={rows}
-        value={value || ""}
-        onChange={(event) => onChange(event.target.value)}
-        className={cn(
-          "w-full rounded-xl border border-input bg-card px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all",
-          mono && "font-mono"
-        )}
-      />
-    </div>
-  );
-}
-
-function Toggle({ label, checked, onChange }) {
-  return (
-    <label className="flex items-center justify-between rounded-xl border border-border px-4 py-3 bg-card">
-      <span className="text-sm">{label}</span>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(event) => onChange(event.target.checked)}
-        className="h-4 w-4 accent-[var(--color-accent)]"
-      />
-    </label>
-  );
-}

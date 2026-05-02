@@ -26,7 +26,6 @@ export default async function BlogPage() {
   const sections = data.sections || {};
   const pageHeader = sections?.pageHeaders?.blog || {};
   const posts = Array.isArray(data.blogPosts) ? data.blogPosts : [];
-  const allPosts = [...posts, ...posts, ...posts].filter(Boolean);
 
   return (
     <>
@@ -46,10 +45,10 @@ export default async function BlogPage() {
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid gap-6 md:grid-cols-3">
-            {allPosts.map((post, index) => (
+            {posts.map((post, index) => (
               <Reveal key={`${post.id || post.slug || post.title}-${index}`} delay={(index % 3) * 0.06}>
                 <Link
-                  href="/blog"
+                  href={post.slug ? `/blog/${post.slug}` : "/blog"}
                   className="group block h-full rounded-3xl border border-border bg-card overflow-hidden hover:border-accent/40 hover:shadow-elegant transition-all"
                 >
                   <div className="aspect-[16/10] bg-gradient-to-br from-accent/30 via-accent/10 to-transparent relative overflow-hidden">

@@ -47,6 +47,7 @@ function renderTitle(title, emphasis) {
 export function Services({ content = defaultContent, items = defaultServices }) {
   const resolved = { ...defaultContent, ...(content || {}) };
   const list = Array.isArray(items) && items.length ? items : defaultServices;
+  const allServicesHref = "/services";
 
   return (
     <section className="py-24 sm:py-32 relative" suppressHydrationWarning>
@@ -60,7 +61,7 @@ export function Services({ content = defaultContent, items = defaultServices }) 
               </h2>
             </div>
             <Link
-              href={resolved.linkHref}
+              href={allServicesHref}
               className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
             >
               {resolved.linkLabel} <ArrowUpRight className="h-4 w-4" />
@@ -74,7 +75,7 @@ export function Services({ content = defaultContent, items = defaultServices }) 
             return (
               <Reveal key={service.id || service.title || index} delay={index * 0.05}>
                 <Link
-                  href={resolved.linkHref}
+                  href={service.slug ? `/services/${service.slug}` : allServicesHref}
                   className="group relative block h-full rounded-3xl border border-border bg-card p-7 transition-all hover:border-accent/50 hover:shadow-glow hover:-translate-y-1 duration-300"
                 >
                   <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent group-hover:bg-accent group-hover:text-accent-foreground transition-colors">

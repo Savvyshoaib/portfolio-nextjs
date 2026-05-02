@@ -1,5 +1,6 @@
 import "server-only";
 import { getCmsSnapshot } from "./server";
+import { normalizeBlogPayload } from "./blog-detail";
 
 function toMetadataBase(siteUrl) {
   try {
@@ -41,13 +42,21 @@ async function getPublicSiteData() {
       color: item.payload?.color || "from-accent/40 to-accent",
       size: item.payload?.size || "sm",
     })),
-    blogPosts: content.blog.map((item) => ({
-      ...item,
-      title: item.title,
-      excerpt: item.excerpt,
-      tag: item.payload?.tag || "Article",
-      date: item.payload?.date || "",
-    })),
+    blogPosts: content.blog.map((item) => {
+      const payload = normalizeBlogPayload(item.payload || {}, {
+        excerpt: item.excerpt || "",
+        tags: item.tags || [],
+      });
+
+      return {
+        ...item,
+        payload,
+        title: item.title,
+        excerpt: item.excerpt,
+        tag: payload.tag || "Article",
+        date: payload.publishedAt || payload.date || "",
+      };
+    }),
     testimonials: content.testimonials.map((item) => ({
       ...item,
       quote: item.title,

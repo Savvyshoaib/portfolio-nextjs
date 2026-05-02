@@ -11,20 +11,24 @@ export async function POST(request) {
   try {
     const formData = await request.formData();
     const file = formData.get("file");
-    const type = formData.get("type"); // 'logo' or 'favicon'
+    const type = formData.get("type"); // 'logo' | 'favicon' | 'portfolio_cover' | 'service_cover' | 'blog_cover' | 'about_founder'
 
     if (!file) {
       return NextResponse.json({ error: "No file provided." }, { status: 400 });
     }
 
-    if (!type || !["logo", "favicon"].includes(type)) {
+    if (!type || !["logo", "favicon", "portfolio_cover", "service_cover", "blog_cover", "about_founder"].includes(type)) {
       return NextResponse.json({ error: "Invalid file type." }, { status: 400 });
     }
 
     // Validate file type
     const allowedTypes = {
       logo: ["image/png", "image/jpeg", "image/svg+xml", "image/webp"],
-      favicon: ["image/x-icon", "image/png", "image/svg+xml"]
+      favicon: ["image/x-icon", "image/png", "image/svg+xml"],
+      portfolio_cover: ["image/png", "image/jpeg", "image/webp", "image/avif"],
+      service_cover: ["image/png", "image/jpeg", "image/webp", "image/avif"],
+      blog_cover: ["image/png", "image/jpeg", "image/webp", "image/avif"],
+      about_founder: ["image/png", "image/jpeg", "image/webp", "image/avif"],
     };
 
     if (!allowedTypes[type].includes(file.type)) {
@@ -47,7 +51,17 @@ export async function POST(request) {
     // Generate unique filename
     const fileExt = file.name.split('.').pop();
     const fileName = `${type}-${Date.now()}.${fileExt}`;
-    const filePath = `site-assets/${fileName}`;
+    const folder =
+      type === "portfolio_cover"
+        ? "portfolio-covers"
+        : type === "service_cover"
+          ? "service-covers"
+          : type === "blog_cover"
+            ? "blog-covers"
+            : type === "about_founder"
+              ? "home-sections"
+            : "site-assets";
+    const filePath = `${folder}/${fileName}`;
 
     // Upload to Supabase storage
     const { data: uploadData, error: uploadError } = await supabase.storage

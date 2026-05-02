@@ -24,3 +24,27 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.editorjs-root .codex-editor__redactor {
+  padding-bottom: 5rem !important;
+}
+
+.editorjs-root .ce-block__content,
+.editorjs-root .ce-toolbar__content {
+  max-width: 100%;
+}
+
+.editorjs-root .ce-block__content,
+.editorjs-root .ce-toolbar__content,
+.editorjs-root .ce-paragraph,
+.editorjs-root .ce-header {
+  direction: ltr;
+  text-align: left;
+}
+
+.editorjs-root .ce-popover,
+.editorjs-root .ce-toolbar__plus,
+.editorjs-root .ce-toolbar__settings-btn,
+.editorjs-root .ce-inline-toolbar {
+  color: inherit;
+}
