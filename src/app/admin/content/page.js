@@ -509,14 +509,29 @@ function SectionEditor({ item, uploading, onAboutUpload, onContentChange }) {
     return (
       <div className="space-y-5">
         <h2 className="text-xl font-semibold">{definition.label}</h2>
-        <Field label="Eyebrow">
-          <input
-            type="text"
-            value={content.eyebrow || ""}
-            onChange={(event) => onContentChange({ ...content, eyebrow: event.target.value })}
-            className={INPUT_CLASSNAME}
-          />
-        </Field>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Eyebrow">
+            <input
+              type="text"
+              value={content.eyebrow || ""}
+              onChange={(event) => onContentChange({ ...content, eyebrow: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Slider Speed (seconds)" hint="Lower = faster. Recommended range: 12 to 40">
+            <input
+              type="number"
+              min="8"
+              max="120"
+              step="1"
+              value={content.marqueeDurationSeconds ?? 30}
+              onChange={(event) =>
+                onContentChange({ ...content, marqueeDurationSeconds: event.target.value })
+              }
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+        </div>
         <Field label="Logo Labels" hint="One logo label per line">
           <textarea
             rows={8}

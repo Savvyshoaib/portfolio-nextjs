@@ -103,6 +103,8 @@ function createPayloadForm() {
     techStackSubtitle: payload.techStackSection.subtitle,
     techRowOne: toLineInput(payload.techStackSection.rowOne),
     techRowTwo: toLineInput(payload.techStackSection.rowTwo),
+    techRowOneDurationSeconds: String(payload.techStackSection.rowOneDurationSeconds),
+    techRowTwoDurationSeconds: String(payload.techStackSection.rowTwoDurationSeconds),
     resultsTitle: payload.results.title,
     resultsSummary: payload.results.summary,
     metrics: formatMetricsInput(payload.results.metrics),
@@ -177,6 +179,8 @@ function formFromItem(item) {
       techStackSubtitle: payload.techStackSection.subtitle,
       techRowOne: toLineInput(payload.techStackSection.rowOne),
       techRowTwo: toLineInput(payload.techStackSection.rowTwo),
+      techRowOneDurationSeconds: String(payload.techStackSection.rowOneDurationSeconds),
+      techRowTwoDurationSeconds: String(payload.techStackSection.rowTwoDurationSeconds),
       resultsTitle: payload.results.title,
       resultsSummary: payload.results.summary,
       metrics: formatMetricsInput(payload.results.metrics),
@@ -226,6 +230,8 @@ function buildSubmitItem(formData, itemId) {
       subtitle: formData.payload.techStackSubtitle,
       rowOne: parseList(formData.payload.techRowOne),
       rowTwo: parseList(formData.payload.techRowTwo),
+      rowOneDurationSeconds: formData.payload.techRowOneDurationSeconds,
+      rowTwoDurationSeconds: formData.payload.techRowTwoDurationSeconds,
     },
     results: {
       title: formData.payload.resultsTitle,
@@ -956,6 +962,34 @@ export default function PortfolioManagementPage() {
                   type="text"
                   value={formData.payload.techStackSubtitle}
                   onChange={(event) => updateFormData("payload.techStackSubtitle", event.target.value)}
+                  className={INPUT_CLASSNAME}
+                />
+              </Field>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              <Field label="Top Carousel Speed (seconds)" hint="Lower = faster. Recommended range: 8 to 30">
+                <input
+                  type="number"
+                  min="6"
+                  max="120"
+                  step="1"
+                  value={formData.payload.techRowOneDurationSeconds}
+                  onChange={(event) =>
+                    updateFormData("payload.techRowOneDurationSeconds", event.target.value)
+                  }
+                  className={INPUT_CLASSNAME}
+                />
+              </Field>
+              <Field label="Bottom Carousel Speed (seconds)" hint="Lower = faster. Recommended range: 8 to 30">
+                <input
+                  type="number"
+                  min="6"
+                  max="120"
+                  step="1"
+                  value={formData.payload.techRowTwoDurationSeconds}
+                  onChange={(event) =>
+                    updateFormData("payload.techRowTwoDurationSeconds", event.target.value)
+                  }
                   className={INPUT_CLASSNAME}
                 />
               </Field>

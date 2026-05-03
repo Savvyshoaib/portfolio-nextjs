@@ -99,6 +99,10 @@ export default async function PortfolioDetailPage({ params }) {
     .filter((item) => item.slug && item.slug !== slug)
     .slice(0, 3);
   const overviewStack = payload.technologies.slice(0, 4);
+  const techStackAnimationStyles = {
+    "--scroll-duration-left": `${techStackSection.rowOneDurationSeconds}s`,
+    "--scroll-duration-right": `${techStackSection.rowTwoDurationSeconds}s`,
+  };
 
   return (
     <>
@@ -326,33 +330,35 @@ export default async function PortfolioDetailPage({ params }) {
                   <p className="text-lg text-muted-foreground">{techStackSection.subtitle}</p>
                 </div>
 
-                <div className="mb-8 overflow-hidden group">
-                  <div className="flex gap-4 animate-scroll-left">
-                    {[...techStackSection.rowOne, ...techStackSection.rowOne].map((tech, index) => (
-                      <div
-                        key={`row-one-${index}`}
-                        className="w-28 h-20 rounded-2xl bg-muted/30 flex items-center justify-center cursor-pointer shrink-0"
-                      >
-                        <span className="text-sm font-semibold text-foreground hover:text-accent transition-colors duration-300 text-center px-2">
-                          {tech}
-                        </span>
-                      </div>
-                    ))}
+                <div className="tech-stack-slider space-y-8" style={techStackAnimationStyles}>
+                  <div className="overflow-hidden">
+                    <div className="flex gap-4 animate-scroll-left">
+                      {[...techStackSection.rowOne, ...techStackSection.rowOne].map((tech, index) => (
+                        <div
+                          key={`row-one-${index}`}
+                          className="w-28 h-20 rounded-2xl bg-muted/30 flex items-center justify-center cursor-pointer shrink-0"
+                        >
+                          <span className="text-sm font-semibold text-foreground hover:text-accent transition-colors duration-300 text-center px-2">
+                            {tech}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                <div className="overflow-hidden group">
-                  <div className="flex gap-4 animate-scroll-right">
-                    {[...techStackSection.rowTwo, ...techStackSection.rowTwo].map((tech, index) => (
-                      <div
-                        key={`row-two-${index}`}
-                        className="w-28 h-20 rounded-2xl bg-muted/30 flex items-center justify-center cursor-pointer shrink-0"
-                      >
-                        <span className="text-sm font-semibold text-foreground hover:text-accent transition-colors duration-300 text-center px-2">
-                          {tech}
-                        </span>
-                      </div>
-                    ))}
+                  <div className="overflow-hidden">
+                    <div className="flex gap-4 animate-scroll-right">
+                      {[...techStackSection.rowTwo, ...techStackSection.rowTwo].map((tech, index) => (
+                        <div
+                          key={`row-two-${index}`}
+                          className="w-28 h-20 rounded-2xl bg-muted/30 flex items-center justify-center cursor-pointer shrink-0"
+                        >
+                          <span className="text-sm font-semibold text-foreground hover:text-accent transition-colors duration-300 text-center px-2">
+                            {tech}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

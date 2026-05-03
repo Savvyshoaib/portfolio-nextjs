@@ -46,6 +46,28 @@ function toBoolean(value, fallback = false) {
   return fallback;
 }
 
+function toNumber(value, fallback = 0) {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+
+  if (typeof value === "string" && !value.trim()) {
+    return fallback;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+
+  return parsed;
+}
+
+function toClampedSeconds(value, fallback) {
+  const normalized = toNumber(value, fallback);
+  return Math.min(120, Math.max(8, normalized));
+}
+
 const HERO_DEFAULT_CONTENT = {
   badgeText: "Available for new projects - Q3 2026",
   headingTop: "Design that",
@@ -68,6 +90,7 @@ const HERO_DEFAULT_CONTENT = {
 const CLIENTS_DEFAULT_CONTENT = {
   eyebrow: "Trusted by industry leaders",
   logos: ["FRAMER", "LINEAR", "VERCEL", "STRIPE", "FIGMA", "NOTION", "ARC", "RAYCAST", "LOOM", "VITE"],
+  marqueeDurationSeconds: 30,
 };
 
 const ABOUT_DEFAULT_CONTENT = {
@@ -270,6 +293,7 @@ function normalizeClientsContent(content) {
   return {
     eyebrow: toText(source.eyebrow, base.eyebrow),
     logos: normalizeStringList(source.logos, base.logos),
+    marqueeDurationSeconds: toClampedSeconds(source.marqueeDurationSeconds, base.marqueeDurationSeconds),
   };
 }
 

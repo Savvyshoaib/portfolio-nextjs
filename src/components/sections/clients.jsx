@@ -1,11 +1,13 @@
 const defaultContent = {
   eyebrow: "Trusted by industry leaders",
   logos: ["FRAMER", "LINEAR", "VERCEL", "STRIPE", "FIGMA", "NOTION", "ARC", "RAYCAST", "LOOM", "VITE"],
+  marqueeDurationSeconds: 30,
 };
 
 export function Clients({ content = defaultContent }) {
   const resolved = { ...defaultContent, ...(content || {}) };
   const logos = Array.isArray(resolved.logos) ? resolved.logos : defaultContent.logos;
+  const marqueeDurationSeconds = Number(resolved.marqueeDurationSeconds) || defaultContent.marqueeDurationSeconds;
 
   return (
     <section className="py-20 border-y border-border bg-secondary/30" suppressHydrationWarning>
@@ -15,7 +17,10 @@ export function Clients({ content = defaultContent }) {
       <div className="relative overflow-hidden">
         <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
         <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-        <div className="flex w-max animate-marquee">
+        <div
+          className="flex w-max animate-marquee marquee-pauses-on-hover"
+          style={{ animationDuration: `${marqueeDurationSeconds}s` }}
+        >
           {[...logos, ...logos].map((logo, index) => (
             <div
               key={`${logo}-${index}`}

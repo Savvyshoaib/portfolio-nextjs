@@ -43,6 +43,8 @@ export const DEFAULT_PORTFOLIO_DETAIL = {
     subtitle: "Technologies we work with",
     rowOne: ["React JS", "Next.js", "Tailwind CSS", "TypeScript", "PostgreSQL", "Firebase", "Vercel", "Framer Motion"],
     rowTwo: ["Angular JS", "JavaScript", "Node.js", "MongoDB", "Docker", "AWS", "GraphQL", "Redux"],
+    rowOneDurationSeconds: 15,
+    rowTwoDurationSeconds: 18,
   },
   results: {
     title: "Exceptional Results",
@@ -95,6 +97,28 @@ function toStringArray(value, fallback = []) {
   }
 
   return [...fallback];
+}
+
+function toNumber(value, fallback = 0) {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+
+  if (typeof value === "string" && !value.trim()) {
+    return fallback;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+
+  return parsed;
+}
+
+function toClampedSeconds(value, fallback) {
+  const normalized = toNumber(value, fallback);
+  return Math.min(120, Math.max(6, normalized));
 }
 
 function normalizeMetric(metric, fallback) {
@@ -178,6 +202,14 @@ export function normalizePortfolioPayload(inputPayload) {
       subtitle: toString(techStackSection.subtitle, defaults.techStackSection.subtitle),
       rowOne: safeList(techStackSection.rowOne, defaults.techStackSection.rowOne),
       rowTwo: safeList(techStackSection.rowTwo, defaults.techStackSection.rowTwo),
+      rowOneDurationSeconds: toClampedSeconds(
+        techStackSection.rowOneDurationSeconds,
+        defaults.techStackSection.rowOneDurationSeconds
+      ),
+      rowTwoDurationSeconds: toClampedSeconds(
+        techStackSection.rowTwoDurationSeconds,
+        defaults.techStackSection.rowTwoDurationSeconds
+      ),
     },
     results: {
       ...defaults.results,

@@ -243,6 +243,9 @@
     background-size: 64px 64px;
     mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   }
+  .marquee-pauses-on-hover:hover {
+    animation-play-state: paused;
+  }
   .noise::before {
     content: "";
     position: absolute;

@@ -143,6 +143,7 @@ export const DEFAULT_SITE_SECTIONS = {
   },
   clients: {
     eyebrow: "Trusted by industry leaders",
+    marqueeDurationSeconds: 30,
     logos: [
       "FRAMER",
       "LINEAR",
