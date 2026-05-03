@@ -147,6 +147,7 @@ export default async function PortfolioDetailPage({ params }) {
                     </span>
                   ))}
                 </div>
+                
 
                 <div className="flex flex-wrap gap-4">
                   {payload.liveUrl ? (
