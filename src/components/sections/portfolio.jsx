@@ -52,7 +52,7 @@ function renderTitle(title, emphasis) {
 export function Portfolio({ content = defaultContent, items = defaultProjects }) {
   const resolved = { ...defaultContent, ...(content || {}) };
   const list = Array.isArray(items) && items.length ? items : defaultProjects;
-  const allProjectsHref = "/portfolio";
+  const allProjectsHref = String(resolved.linkHref || "").trim() || "/portfolio";
 
   return (
     <section className="py-24 sm:py-32" suppressHydrationWarning>

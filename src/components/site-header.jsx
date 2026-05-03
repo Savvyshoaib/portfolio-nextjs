@@ -32,6 +32,11 @@ function formatBrand(siteName) {
 }
 
 function getLogoSize(size) {
+  const parsed = Number(size);
+  if (Number.isFinite(parsed)) {
+    return Math.min(200, Math.max(24, Math.round(parsed)));
+  }
+
   const sizeMap = {
     small: 24,
     medium: 32,
@@ -41,11 +46,25 @@ function getLogoSize(size) {
   return sizeMap[size] || 32;
 }
 
+function resolveThemedLogo({ theme, lightUrl, darkUrl, fallbackUrl }) {
+  const light = String(lightUrl || "").trim();
+  const dark = String(darkUrl || "").trim();
+  const fallback = String(fallbackUrl || "").trim();
+
+  if (theme === "dark") {
+    return dark || fallback || light;
+  }
+
+  return light || fallback || dark;
+}
+
 export function SiteHeader({
   navigation = defaultNav,
   brandMark = "N",
   siteName = "Nova studio",
   logoUrl,
+  logoLightUrl,
+  logoDarkUrl,
   logoOnly = false,
   logoSize = "medium",
   hireLabel = "Hire me",
@@ -55,6 +74,14 @@ export function SiteHeader({
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const brand = formatBrand(siteName);
+  const resolvedLogoSize = getLogoSize(logoSize);
+  const activeTheme = mounted ? theme : "dark";
+  const resolvedLogoUrl = resolveThemedLogo({
+    theme: activeTheme,
+    lightUrl: logoLightUrl,
+    darkUrl: logoDarkUrl,
+    fallbackUrl: logoUrl,
+  });
 
   useEffect(() => {
     if (!mounted) {
@@ -94,24 +121,25 @@ export function SiteHeader({
           suppressHydrationWarning
         >
           <Link href="/" className="flex items-center gap-2 group">
-            {logoOnly && logoUrl ? (
+            {logoOnly && resolvedLogoUrl ? (
               <Image
-                src={logoUrl}
+                src={resolvedLogoUrl}
                 alt={siteName || "Site Logo"}
-                width={getLogoSize(logoSize)}
-                height={getLogoSize(logoSize)}
+                width={resolvedLogoSize}
+                height={resolvedLogoSize}
                 className="rounded-lg object-contain"
-                style={{ width: getLogoSize(logoSize), height: getLogoSize(logoSize) }}
+                style={{ width: resolvedLogoSize, height: resolvedLogoSize }}
                 unoptimized
               />
-            ) : logoUrl ? (
+            ) : resolvedLogoUrl ? (
               <>
                 <Image
-                  src={logoUrl}
+                  src={resolvedLogoUrl}
                   alt={siteName || "Site Logo"}
-                  width={32}
-                  height={32}
-                  className="h-8 w-8 rounded-lg object-contain"
+                  width={resolvedLogoSize}
+                  height={resolvedLogoSize}
+                  className="rounded-lg object-contain"
+                  style={{ width: resolvedLogoSize, height: resolvedLogoSize }}
                   unoptimized
                 />
                 <span className="font-semibold tracking-tight">
@@ -194,24 +222,25 @@ export function SiteHeader({
           <div className="h-full border-l border-border shadow-2xl backdrop-blur-sm">
             <div className="flex items-center justify-between p-6 border-b border-border">
               <div className="flex items-center gap-2">
-                {logoOnly && logoUrl ? (
+                {logoOnly && resolvedLogoUrl ? (
                   <Image
-                    src={logoUrl}
+                    src={resolvedLogoUrl}
                     alt={siteName || "Site Logo"}
-                    width={getLogoSize(logoSize)}
-                    height={getLogoSize(logoSize)}
+                    width={resolvedLogoSize}
+                    height={resolvedLogoSize}
                     className="rounded-lg object-contain"
-                    style={{ width: getLogoSize(logoSize), height: getLogoSize(logoSize) }}
+                    style={{ width: resolvedLogoSize, height: resolvedLogoSize }}
                     unoptimized
                   />
-                ) : logoUrl ? (
+                ) : resolvedLogoUrl ? (
                   <>
                     <Image
-                      src={logoUrl}
+                      src={resolvedLogoUrl}
                       alt={siteName || "Site Logo"}
-                      width={32}
-                      height={32}
-                      className="h-8 w-8 rounded-lg object-contain"
+                      width={resolvedLogoSize}
+                      height={resolvedLogoSize}
+                      className="rounded-lg object-contain"
+                      style={{ width: resolvedLogoSize, height: resolvedLogoSize }}
                       unoptimized
                     />
                     <span className="font-semibold tracking-tight">

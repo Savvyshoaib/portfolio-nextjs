@@ -112,6 +112,14 @@ export const adminApi = {
 
     return payload;
   },
+  getMediaFiles() {
+    return request("/api/admin/media");
+  },
+  deleteMediaFile(path) {
+    return request(`/api/admin/media?path=${encodeURIComponent(path)}`, {
+      method: "DELETE",
+    });
+  },
   getContactSubmissions(params = {}) {
     const queryString = new URLSearchParams(params).toString();
     return request(`/api/admin/contact${queryString ? `?${queryString}` : ''}`);

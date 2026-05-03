@@ -4,7 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { resolveServiceIcon } from "@/lib/icon-map";
 
 const defaultContent = {
-  eyebrow: "Services",
+  eyebrow: "What I Offer",
   title: "Everything you need to launch remarkable.",
   titleEmphasis: "remarkable",
   linkLabel: "All services",
@@ -47,7 +47,7 @@ function renderTitle(title, emphasis) {
 export function Services({ content = defaultContent, items = defaultServices }) {
   const resolved = { ...defaultContent, ...(content || {}) };
   const list = Array.isArray(items) && items.length ? items : defaultServices;
-  const allServicesHref = "/services";
+  const allServicesHref = String(resolved.linkHref || "").trim() || "/services";
 
   return (
     <section className="py-24 sm:py-32 relative" suppressHydrationWarning>

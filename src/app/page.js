@@ -47,17 +47,17 @@ export default async function HomePage() {
       case "about":
         return <About key={item.id} content={item.content} />;
       case "services":
-        return <Services key={item.id} content={sections.services} items={latestServices} />;
+        return <Services key={item.id} content={item.content || sections.services} items={latestServices} />;
       case "cta":
         return <CTA key={item.id} content={item.content} />;
       case "portfolio":
-        return <Portfolio key={item.id} content={sections.portfolio} items={latestPortfolio} />;
+        return <Portfolio key={item.id} content={item.content || sections.portfolio} items={latestPortfolio} />;
       case "techStack":
         return <TechStack key={item.id} content={item.content} items={item.content?.items} />;
       case "testimonials":
         return <Testimonials key={item.id} content={item.content} items={item.content?.items} />;
       case "blog":
-        return <Blog key={item.id} content={sections.blog} items={latestBlogPosts} />;
+        return <Blog key={item.id} content={item.content || sections.blog} items={latestBlogPosts} />;
       case "contact":
         return <ContactSection key={item.id} content={sections.contact} />;
       default:

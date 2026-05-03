@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Blocks, ChevronDown, ChevronRight, FileText, LayoutDashboard, LogOut, Settings, User } from "lucide-react";
+import { Blocks, ChevronDown, ChevronRight, FileText, ImageIcon, LayoutDashboard, LogOut, Settings, User } from "lucide-react";
 import { adminApi } from "@/lib/cms/admin-client";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +29,7 @@ const navigation = [
       { href: "/admin/contact/services-inquiry", label: "Services inquiry" },
     ],
   },
+  { href: "/admin/media", label: "Media", icon: ImageIcon },
   { href: "/admin/settings", label: "Settings", icon: Settings },
   { href: "/admin/profile", label: "Profile", icon: User },
 ];

@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { Reveal } from "../reveal";
-import { CheckCircle2 } from "lucide-react";
+import { ArrowUpRight, CheckCircle2 } from "lucide-react";
 
 const defaultContent = {
   eyebrow: "About",
@@ -15,6 +16,9 @@ const defaultContent = {
   founderName: "Alex Moreau",
   founderRole: "Founder and Lead Designer",
   founderImageUrl: "",
+  showButton: false,
+  buttonLabel: "Start a project",
+  buttonLink: "/contact",
 };
 
 function renderTitle(title, emphasis) {
@@ -37,13 +41,16 @@ export function About({ content = defaultContent }) {
   const resolved = { ...defaultContent, ...(content || {}) };
   const bullets = Array.isArray(resolved.bullets) ? resolved.bullets : defaultContent.bullets;
   const founderImageUrl = String(resolved.founderImageUrl || "").trim();
+  const shouldShowButton = Boolean(resolved.showButton);
+  const buttonLabel = String(resolved.buttonLabel || "").trim() || defaultContent.buttonLabel;
+  const buttonLink = String(resolved.buttonLink || "").trim() || defaultContent.buttonLink;
 
   return (
     <section className="py-24 sm:py-32" suppressHydrationWarning>
       <div className="mx-auto max-w-7xl px-4 sm:px-6" suppressHydrationWarning>
         <div className="grid gap-12 md:gap-16 md:grid-cols-2 items-center">
           <Reveal>
-            <div className="relative aspect-4/5 rounded-3xl overflow-hidden bg-gradient-accent shadow-elegant">
+            <div className="relative aspect-[4/5] rounded-[65px] overflow-hidden bg-gradient-accent shadow-elegant border-2  border-t-[8px] border-r-[8px] border-t-[#95dd27] border-r-[#95dd27]">
               {founderImageUrl ? (
                 <img
                   src={founderImageUrl}
@@ -51,7 +58,7 @@ export function About({ content = defaultContent }) {
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               ) : null}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,oklch(1_0_0/0.3),transparent_50%)]" />
+              {/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,oklch(1_0_0/0.3),transparent_50%)]" /> */}
               <div className="absolute bottom-6 left-6 right-6 glass rounded-2xl p-5">
                 <p className="text-xs uppercase tracking-widest text-foreground/70">{resolved.founderRole}</p>
                 <p className="mt-1 text-xl font-semibold">{resolved.founderName}</p>
@@ -74,6 +81,19 @@ export function About({ content = defaultContent }) {
                 </li>
               ))}
             </ul>
+
+            {shouldShowButton ? (
+              <div className="mt-10">
+                <Link
+                  href={buttonLink}
+                  target="_blank"
+                  className="inline-flex items-center gap-2 rounded-full border border-accent bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground hover:opacity-90 transition-opacity"
+                >
+                  {buttonLabel}
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </div>
+            ) : null}
           </Reveal>
         </div>
       </div>

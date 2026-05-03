@@ -1,12 +1,16 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useTheme } from "./theme-provider";
 
 const defaultFooter = {
   description:
     "A digital studio crafting bold brands, premium interfaces, and award-winning web experiences.",
+  startProjectLabel: "Start a project",
+  startProjectLink: "/contact",
   exploreLinks: [
     { to: "/services", label: "Services" },
     { to: "/portfolio", label: "Work" },
@@ -14,6 +18,11 @@ const defaultFooter = {
     { to: "/contact", label: "Contact" },
   ],
   socials: [],
+  logoUrl: "",
+  logoLightUrl: "",
+  logoDarkUrl: "",
+  logoOnly: false,
+  logoSize: "medium",
   copyrightSuffix: "All rights reserved.",
   craftedLine: "Crafted with care - Available worldwide",
 };
@@ -38,12 +47,45 @@ function formatBrand(siteName) {
   };
 }
 
+function getLogoSize(size) {
+  const parsed = Number(size);
+  if (Number.isFinite(parsed)) {
+    return Math.min(200, Math.max(24, Math.round(parsed)));
+  }
+
+  const sizeMap = {
+    small: 24,
+    medium: 32,
+    large: 40,
+    xlarge: 48,
+  };
+  return sizeMap[size] || 32;
+}
+
+function resolveThemedLogo({ theme, lightUrl, darkUrl, fallbackUrl }) {
+  const light = String(lightUrl || "").trim();
+  const dark = String(darkUrl || "").trim();
+  const fallback = String(fallbackUrl || "").trim();
+
+  if (theme === "dark") {
+    return dark || fallback || light;
+  }
+
+  return light || fallback || dark;
+}
+
 export function SiteFooter({
   siteName = "Nova studio",
   brandMark = "N",
   email = "hello@nova.studio",
+  logoUrl = "",
+  logoLightUrl = "",
+  logoDarkUrl = "",
+  logoOnly = false,
+  logoSize = "medium",
   footer = defaultFooter,
 }) {
+  const { theme, mounted } = useTheme();
   const pathname = usePathname();
   if (pathname?.startsWith("/admin")) {
     return null;
@@ -55,6 +97,21 @@ export function SiteFooter({
     ? resolvedFooter.exploreLinks
     : defaultFooter.exploreLinks;
   const socials = Array.isArray(resolvedFooter.socials) ? resolvedFooter.socials : [];
+  const footerLogoFallbackUrl = String(resolvedFooter.logoUrl || logoUrl || "").trim();
+  const footerLogoLightUrl = String(resolvedFooter.logoLightUrl || logoLightUrl || "").trim();
+  const footerLogoDarkUrl = String(resolvedFooter.logoDarkUrl || logoDarkUrl || "").trim();
+  const footerLogoOnly = Boolean(resolvedFooter.logoOnly ?? logoOnly);
+  const footerLogoSize = getLogoSize(resolvedFooter.logoSize || logoSize || "medium");
+  const footerEmail = String(resolvedFooter.email || email || "").trim();
+  const startProjectLabel = String(resolvedFooter.startProjectLabel || defaultFooter.startProjectLabel);
+  const startProjectLink = String(resolvedFooter.startProjectLink || defaultFooter.startProjectLink || "/contact");
+  const activeTheme = mounted ? theme : "dark";
+  const footerLogoUrl = resolveThemedLogo({
+    theme: activeTheme,
+    lightUrl: footerLogoLightUrl,
+    darkUrl: footerLogoDarkUrl,
+    fallbackUrl: footerLogoFallbackUrl,
+  });
 
   return (
     <footer className="relative mt-32 border-t border-border" suppressHydrationWarning>
@@ -62,21 +119,52 @@ export function SiteFooter({
         <div className="grid gap-12 md:grid-cols-4">
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-2">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-accent text-accent-foreground font-black">
-                {brandMark}
-              </span>
-              <span className="font-semibold tracking-tight text-lg">
-                {brand.main}
-                <span className="text-accent">.</span>
-                {brand.tail}
-              </span>
+              {footerLogoOnly && footerLogoUrl ? (
+                <Image
+                  src={footerLogoUrl}
+                  alt={siteName || "Site Logo"}
+                  width={footerLogoSize}
+                  height={footerLogoSize}
+                  className="rounded-lg object-contain"
+                  style={{ width: footerLogoSize, height: footerLogoSize }}
+                  unoptimized
+                />
+              ) : footerLogoUrl ? (
+                <>
+                  <Image
+                    src={footerLogoUrl}
+                    alt={siteName || "Site Logo"}
+                    width={footerLogoSize}
+                    height={footerLogoSize}
+                    className="rounded-lg object-contain"
+                    style={{ width: footerLogoSize, height: footerLogoSize }}
+                    unoptimized
+                  />
+                  <span className="font-semibold tracking-tight text-lg">
+                    {brand.main}
+                    <span className="text-accent">.</span>
+                    {brand.tail}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-accent text-accent-foreground font-black">
+                    {brandMark}
+                  </span>
+                  <span className="font-semibold tracking-tight text-lg">
+                    {brand.main}
+                    <span className="text-accent">.</span>
+                    {brand.tail}
+                  </span>
+                </>
+              )}
             </Link>
             <p className="mt-4 max-w-sm text-muted-foreground text-sm leading-relaxed">{resolvedFooter.description}</p>
             <Link
-              href="/contact"
+              href={startProjectLink}
               className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-accent transition-colors"
             >
-              Start a project <ArrowUpRight className="h-4 w-4" />
+              {startProjectLabel} <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
 
@@ -109,7 +197,7 @@ export function SiteFooter({
                 </a>
               ))}
             </div>
-            <p className="mt-6 text-xs text-muted-foreground">{email}</p>
+            {footerEmail ? <p className="mt-6 text-xs text-muted-foreground">{footerEmail}</p> : null}
           </div>
         </div>
 

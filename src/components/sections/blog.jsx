@@ -52,7 +52,7 @@ function renderTitle(title, emphasis) {
 export function Blog({ content = defaultContent, items = defaultPosts }) {
   const resolved = { ...defaultContent, ...(content || {}) };
   const posts = Array.isArray(items) && items.length ? items : defaultPosts;
-  const allArticlesHref = "/blog";
+  const allArticlesHref = String(resolved.linkHref || "").trim() || "/blog";
 
   return (
     <section className="py-24 sm:py-32" suppressHydrationWarning>

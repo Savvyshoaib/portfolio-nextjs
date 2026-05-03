@@ -591,6 +591,37 @@ function SectionEditor({ item, uploading, onAboutUpload, onContentChange }) {
             className={TEXTAREA_CLASSNAME}
           />
         </Field>
+        <Field label="About Button">
+          <label className="flex items-center justify-between rounded-xl border border-border px-4 py-3 bg-card">
+            <span className="text-sm">Show button in About section</span>
+            <input
+              type="checkbox"
+              checked={Boolean(content.showButton)}
+              onChange={(event) => onContentChange({ ...content, showButton: event.target.checked })}
+              className="h-4 w-4 accent-(--color-accent)"
+            />
+          </label>
+        </Field>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Button Label">
+            <input
+              type="text"
+              value={content.buttonLabel || ""}
+              onChange={(event) => onContentChange({ ...content, buttonLabel: event.target.value })}
+              className={INPUT_CLASSNAME}
+              placeholder="Start a project"
+            />
+          </Field>
+          <Field label="Button Link">
+            <input
+              type="text"
+              value={content.buttonLink || ""}
+              onChange={(event) => onContentChange({ ...content, buttonLink: event.target.value })}
+              className={INPUT_CLASSNAME}
+              placeholder="/contact"
+            />
+          </Field>
+        </div>
         <Field label="Founder Image URL">
           <div className="space-y-3">
             <div className="flex gap-2">
@@ -623,6 +654,108 @@ function SectionEditor({ item, uploading, onAboutUpload, onContentChange }) {
               </div>
             ) : null}
           </div>
+        </Field>
+      </div>
+    );
+  }
+
+  if (item.type === "services") {
+    return (
+      <div className="space-y-5">
+        <h2 className="text-xl font-semibold">{definition.label}</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Eyebrow">
+            <input
+              type="text"
+              value={content.eyebrow || ""}
+              onChange={(event) => onContentChange({ ...content, eyebrow: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Title Emphasis">
+            <input
+              type="text"
+              value={content.titleEmphasis || ""}
+              onChange={(event) => onContentChange({ ...content, titleEmphasis: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Link Label">
+            <input
+              type="text"
+              value={content.linkLabel || ""}
+              onChange={(event) => onContentChange({ ...content, linkLabel: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Link URL">
+            <input
+              type="text"
+              value={content.linkHref || ""}
+              onChange={(event) => onContentChange({ ...content, linkHref: event.target.value })}
+              className={INPUT_CLASSNAME}
+              placeholder="/services"
+            />
+          </Field>
+        </div>
+        <Field label="Title">
+          <input
+            type="text"
+            value={content.title || ""}
+            onChange={(event) => onContentChange({ ...content, title: event.target.value })}
+            className={INPUT_CLASSNAME}
+          />
+        </Field>
+      </div>
+    );
+  }
+
+  if (item.type === "portfolio") {
+    return (
+      <div className="space-y-5">
+        <h2 className="text-xl font-semibold">{definition.label}</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Eyebrow">
+            <input
+              type="text"
+              value={content.eyebrow || ""}
+              onChange={(event) => onContentChange({ ...content, eyebrow: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Title Emphasis">
+            <input
+              type="text"
+              value={content.titleEmphasis || ""}
+              onChange={(event) => onContentChange({ ...content, titleEmphasis: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Link Label">
+            <input
+              type="text"
+              value={content.linkLabel || ""}
+              onChange={(event) => onContentChange({ ...content, linkLabel: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Link URL">
+            <input
+              type="text"
+              value={content.linkHref || ""}
+              onChange={(event) => onContentChange({ ...content, linkHref: event.target.value })}
+              className={INPUT_CLASSNAME}
+              placeholder="/portfolio"
+            />
+          </Field>
+        </div>
+        <Field label="Title">
+          <input
+            type="text"
+            value={content.title || ""}
+            onChange={(event) => onContentChange({ ...content, title: event.target.value })}
+            className={INPUT_CLASSNAME}
+          />
         </Field>
       </div>
     );
@@ -672,6 +805,57 @@ function SectionEditor({ item, uploading, onAboutUpload, onContentChange }) {
             value={content.subtitle || ""}
             onChange={(event) => onContentChange({ ...content, subtitle: event.target.value })}
             className={TEXTAREA_CLASSNAME}
+          />
+        </Field>
+      </div>
+    );
+  }
+
+  if (item.type === "blog") {
+    return (
+      <div className="space-y-5">
+        <h2 className="text-xl font-semibold">{definition.label}</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Eyebrow">
+            <input
+              type="text"
+              value={content.eyebrow || ""}
+              onChange={(event) => onContentChange({ ...content, eyebrow: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Title Emphasis">
+            <input
+              type="text"
+              value={content.titleEmphasis || ""}
+              onChange={(event) => onContentChange({ ...content, titleEmphasis: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Link Label">
+            <input
+              type="text"
+              value={content.linkLabel || ""}
+              onChange={(event) => onContentChange({ ...content, linkLabel: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Link URL">
+            <input
+              type="text"
+              value={content.linkHref || ""}
+              onChange={(event) => onContentChange({ ...content, linkHref: event.target.value })}
+              className={INPUT_CLASSNAME}
+              placeholder="/blog"
+            />
+          </Field>
+        </div>
+        <Field label="Title">
+          <input
+            type="text"
+            value={content.title || ""}
+            onChange={(event) => onContentChange({ ...content, title: event.target.value })}
+            className={INPUT_CLASSNAME}
           />
         </Field>
       </div>

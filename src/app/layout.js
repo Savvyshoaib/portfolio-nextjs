@@ -51,6 +51,8 @@ export default async function RootLayout({ children }) {
               brandMark={general.brandMark}
               siteName={general.siteName}
               logoUrl={general.logoUrl}
+              logoLightUrl={general.logoLightUrl}
+              logoDarkUrl={general.logoDarkUrl}
               logoOnly={general.logoOnly}
               logoSize={general.logoSize}
               hireLabel={settings?.ctaLabels?.headerHire || "Hire me"}
@@ -60,6 +62,11 @@ export default async function RootLayout({ children }) {
               siteName={general.siteName}
               brandMark={general.brandMark}
               email={general.email}
+              logoUrl={general.logoUrl}
+              logoLightUrl={general.logoLightUrl}
+              logoDarkUrl={general.logoDarkUrl}
+              logoOnly={general.logoOnly}
+              logoSize={general.logoSize}
               footer={settings.footer}
             />
           </div>

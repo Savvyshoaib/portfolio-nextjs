@@ -24,6 +24,28 @@ function normalizeStringList(value, fallback = []) {
     .filter(Boolean);
 }
 
+function toBoolean(value, fallback = false) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = value.trim().toLowerCase();
+    if (parsed === "true" || parsed === "1" || parsed === "yes" || parsed === "on") {
+      return true;
+    }
+    if (parsed === "false" || parsed === "0" || parsed === "no" || parsed === "off") {
+      return false;
+    }
+  }
+
+  if (typeof value === "number") {
+    return value !== 0;
+  }
+
+  return fallback;
+}
+
 const HERO_DEFAULT_CONTENT = {
   badgeText: "Available for new projects - Q3 2026",
   headingTop: "Design that",
@@ -62,6 +84,17 @@ const ABOUT_DEFAULT_CONTENT = {
   founderName: "Alex Moreau",
   founderRole: "Founder and Lead Designer",
   founderImageUrl: "",
+  showButton: false,
+  buttonLabel: "Start a project",
+  buttonLink: "/contact",
+};
+
+const SERVICES_DEFAULT_CONTENT = {
+  eyebrow: "Services",
+  title: "Everything you need to launch remarkable.",
+  titleEmphasis: "remarkable",
+  linkLabel: "All services",
+  linkHref: "/services",
 };
 
 const CTA_DEFAULT_CONTENT = {
@@ -70,6 +103,14 @@ const CTA_DEFAULT_CONTENT = {
   subtitle: "Tell us about it. We reply within 24 hours and love a good challenge.",
   ctaLabel: "Lets work together",
   ctaLink: "/contact",
+};
+
+const PORTFOLIO_DEFAULT_CONTENT = {
+  eyebrow: "Selected work",
+  title: "A few things we are proud of.",
+  titleEmphasis: "proud of",
+  linkLabel: "All projects",
+  linkHref: "/portfolio",
 };
 
 const TECH_STACK_DEFAULT_CONTENT = {
@@ -122,6 +163,14 @@ const TESTIMONIALS_DEFAULT_CONTENT = {
   ],
 };
 
+const BLOG_DEFAULT_CONTENT = {
+  eyebrow: "Journal",
+  title: "Notes from the studio.",
+  titleEmphasis: "studio",
+  linkLabel: "All articles",
+  linkHref: "/blog",
+};
+
 export const HOME_SECTION_DEFINITIONS = {
   hero: {
     label: "Hero",
@@ -140,7 +189,8 @@ export const HOME_SECTION_DEFINITIONS = {
   },
   services: {
     label: "Services (Latest 6)",
-    editable: false,
+    editable: true,
+    defaultContent: SERVICES_DEFAULT_CONTENT,
   },
   cta: {
     label: "CTA Banner",
@@ -149,7 +199,8 @@ export const HOME_SECTION_DEFINITIONS = {
   },
   portfolio: {
     label: "Portfolio (Latest 6)",
-    editable: false,
+    editable: true,
+    defaultContent: PORTFOLIO_DEFAULT_CONTENT,
   },
   techStack: {
     label: "Tech Stack",
@@ -163,7 +214,8 @@ export const HOME_SECTION_DEFINITIONS = {
   },
   blog: {
     label: "Blog (Latest 3)",
-    editable: false,
+    editable: true,
+    defaultContent: BLOG_DEFAULT_CONTENT,
   },
   contact: {
     label: "Contact Form",
@@ -234,6 +286,9 @@ function normalizeAboutContent(content) {
     founderName: toText(source.founderName, base.founderName),
     founderRole: toText(source.founderRole, base.founderRole),
     founderImageUrl: toText(source.founderImageUrl, base.founderImageUrl),
+    showButton: toBoolean(source.showButton, base.showButton),
+    buttonLabel: toText(source.buttonLabel, base.buttonLabel),
+    buttonLink: toText(source.buttonLink, base.buttonLink),
   };
 }
 
@@ -250,6 +305,32 @@ function normalizeCtaContent(content) {
   };
 }
 
+function normalizeServicesContent(content) {
+  const base = SERVICES_DEFAULT_CONTENT;
+  const source = content && typeof content === "object" ? content : {};
+
+  return {
+    eyebrow: toText(source.eyebrow, base.eyebrow),
+    title: toText(source.title, base.title),
+    titleEmphasis: toText(source.titleEmphasis, base.titleEmphasis),
+    linkLabel: toText(source.linkLabel, base.linkLabel),
+    linkHref: toText(source.linkHref, base.linkHref),
+  };
+}
+
+function normalizePortfolioContent(content) {
+  const base = PORTFOLIO_DEFAULT_CONTENT;
+  const source = content && typeof content === "object" ? content : {};
+
+  return {
+    eyebrow: toText(source.eyebrow, base.eyebrow),
+    title: toText(source.title, base.title),
+    titleEmphasis: toText(source.titleEmphasis, base.titleEmphasis),
+    linkLabel: toText(source.linkLabel, base.linkLabel),
+    linkHref: toText(source.linkHref, base.linkHref),
+  };
+}
+
 function normalizeTechStackContent(content) {
   const base = TECH_STACK_DEFAULT_CONTENT;
   const source = content && typeof content === "object" ? content : {};
@@ -259,6 +340,19 @@ function normalizeTechStackContent(content) {
     title: toText(source.title, base.title),
     titleEmphasis: toText(source.titleEmphasis, base.titleEmphasis),
     items: normalizeStringList(source.items, base.items),
+  };
+}
+
+function normalizeBlogContent(content) {
+  const base = BLOG_DEFAULT_CONTENT;
+  const source = content && typeof content === "object" ? content : {};
+
+  return {
+    eyebrow: toText(source.eyebrow, base.eyebrow),
+    title: toText(source.title, base.title),
+    titleEmphasis: toText(source.titleEmphasis, base.titleEmphasis),
+    linkLabel: toText(source.linkLabel, base.linkLabel),
+    linkHref: toText(source.linkHref, base.linkHref),
   };
 }
 
@@ -305,12 +399,18 @@ export function normalizeHomeSectionContent(type, content) {
       return normalizeClientsContent(content);
     case "about":
       return normalizeAboutContent(content);
+    case "services":
+      return normalizeServicesContent(content);
     case "cta":
       return normalizeCtaContent(content);
+    case "portfolio":
+      return normalizePortfolioContent(content);
     case "techStack":
       return normalizeTechStackContent(content);
     case "testimonials":
       return normalizeTestimonialsContent(content);
+    case "blog":
+      return normalizeBlogContent(content);
     default:
       return undefined;
   }
@@ -364,15 +464,45 @@ function buildLegacyHomeLayout(sections = {}) {
     createLegacyItem("hero-1", "hero", source.hero),
     createLegacyItem("clients-1", "clients", source.clients),
     createLegacyItem("about-1", "about", source.about),
-    createLegacyItem("services-1", "services"),
+    createLegacyItem("services-1", "services", source.services || source.pageHeaders?.services),
     createLegacyItem("cta-1", "cta", source.ctaPrimary),
-    createLegacyItem("portfolio-1", "portfolio"),
+    createLegacyItem("portfolio-1", "portfolio", source.portfolio || source.pageHeaders?.portfolio),
     createLegacyItem("techStack-1", "techStack", source.techStack),
     createLegacyItem("testimonials-1", "testimonials", source.testimonials),
     createLegacyItem("cta-2", "cta", source.ctaSecondary),
-    createLegacyItem("blog-1", "blog"),
+    createLegacyItem("blog-1", "blog", source.blog || source.pageHeaders?.blog),
     createLegacyItem("contact-1", "contact"),
   ].filter(Boolean);
+}
+
+function getLegacyContentForEditableType(type, itemId, sections = {}) {
+  const source = sections && typeof sections === "object" ? sections : {};
+
+  switch (type) {
+    case "hero":
+      return source.hero;
+    case "clients":
+      return source.clients;
+    case "about":
+      return source.about;
+    case "services":
+      return source.services || source.pageHeaders?.services;
+    case "cta":
+      if (itemId === "cta-2") {
+        return source.ctaSecondary || source.ctaPrimary;
+      }
+      return source.ctaPrimary || source.ctaSecondary;
+    case "portfolio":
+      return source.portfolio || source.pageHeaders?.portfolio;
+    case "techStack":
+      return source.techStack;
+    case "testimonials":
+      return source.testimonials;
+    case "blog":
+      return source.blog || source.pageHeaders?.blog;
+    default:
+      return undefined;
+  }
 }
 
 export function normalizeHomeLayout(layout, sections = {}) {
@@ -399,10 +529,10 @@ export function normalizeHomeLayout(layout, sections = {}) {
       };
 
       if (definition.editable) {
-        const rawContent =
-          item?.content && typeof item.content === "object"
-            ? item.content
-            : getDefaultEditableContent(type);
+        const hasInlineContent = item?.content && typeof item.content === "object";
+        const rawContent = hasInlineContent
+          ? item.content
+          : getLegacyContentForEditableType(type, item?.id, sections) || getDefaultEditableContent(type);
         normalizedItem.content = normalizeHomeSectionContent(type, rawContent);
       }
 

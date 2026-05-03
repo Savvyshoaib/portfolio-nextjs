@@ -189,9 +189,21 @@ export default async function PortfolioDetailPage({ params }) {
                         {hero.awardLabel}
                       </span>
                       <div className="absolute bottom-6 right-6">
-                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                          <ExternalLink className="h-5 w-5 text-white" />
-                        </div>
+                        {payload.liveUrl ? (
+                          <Link
+                            href={payload.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group/live inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-all duration-300 hover:bg-white/30 hover:scale-105"
+                            aria-label="Open live project in a new tab"
+                          >
+                            <ExternalLink className="h-5 w-5 text-white transition-transform duration-300 group-hover/live:scale-110 group-hover/live:-translate-y-0.5" />
+                          </Link>
+                        ) : (
+                          <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                            <ExternalLink className="h-5 w-5 text-white" />
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -256,7 +268,7 @@ export default async function PortfolioDetailPage({ params }) {
             </div>
 
             <div className="space-y-20">
-              <div className="grid gap-12 lg:grid-cols-2 items-center">
+              <div className="grid items-center">
                 <div className="space-y-6">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center">
@@ -270,7 +282,7 @@ export default async function PortfolioDetailPage({ params }) {
                     </p>
                   ))}
                 </div>
-                <div className="relative">
+                {/* <div className="relative">
                   <div className="aspect-16/10 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-2xl border border-red-500/20 flex items-center justify-center">
                     <div className="text-center">
                       <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -279,11 +291,11 @@ export default async function PortfolioDetailPage({ params }) {
                       <p className="text-foreground font-semibold">{deepDive.challengeCardLabel}</p>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
 
-              <div className="grid gap-12 lg:grid-cols-2 items-center">
-                <div className="relative order-2 lg:order-1">
+              <div className="grid items-center">
+                {/* <div className="relative order-2 lg:order-1">
                   <div className="aspect-16/10 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl border border-blue-500/20 flex items-center justify-center">
                     <div className="text-center">
                       <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -292,7 +304,7 @@ export default async function PortfolioDetailPage({ params }) {
                       <p className="text-foreground font-semibold">{deepDive.approachCardLabel}</p>
                     </div>
                   </div>
-                </div>
+                </div> */}
                 <div className="space-y-6 order-1 lg:order-2">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
@@ -390,11 +402,15 @@ export default async function PortfolioDetailPage({ params }) {
                 const gradient = itemPayload.color || FALLBACK_RELATED_GRADIENTS[index % FALLBACK_RELATED_GRADIENTS.length];
 
                 return (
-                  <Link
+                  <article
                     key={item.slug || `${item.title}-${index}`}
-                    href={`/portfolio/${item.slug}`}
-                    className="group block rounded-3xl border border-border bg-card/50 backdrop-blur-sm overflow-hidden hover:border-accent/40 hover:shadow-elegant hover:shadow-accent/10 transition-all duration-500 hover:-translate-y-1"
+                    className="group relative block rounded-3xl border border-border bg-card/50 backdrop-blur-sm overflow-hidden hover:border-accent/40 hover:shadow-elegant hover:shadow-accent/10 transition-all duration-500 hover:-translate-y-1"
                   >
+                    <Link
+                      href={`/portfolio/${item.slug}`}
+                      className="absolute inset-0 z-10"
+                      aria-label={`View ${item.title} project details`}
+                    />
                     <div className="aspect-16/10 relative overflow-hidden">
                       {item.cover_image_url ? (
                         <img
@@ -412,13 +428,25 @@ export default async function PortfolioDetailPage({ params }) {
                           {categoryLabel}
                         </span>
                       </div>
-                      <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                          <ArrowLeft className="h-5 w-5 text-white rotate-180" />
-                        </div>
+                      <div className="absolute bottom-6 right-6 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        {itemPayload.liveUrl ? (
+                          <Link
+                            href={itemPayload.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group/live inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-all duration-300 hover:bg-white/30 hover:scale-105"
+                            aria-label={`Open ${item.title} live project in a new tab`}
+                          >
+                            <ArrowLeft className="h-5 w-5 text-white rotate-180 transition-transform duration-300 group-hover/live:translate-x-1 group-hover/live:scale-110" />
+                          </Link>
+                        ) : (
+                          <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                            <ArrowLeft className="h-5 w-5 text-white rotate-180" />
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <div className="p-8">
+                    <div className="relative z-0 p-8">
                       <h3 className="text-xl font-bold tracking-tight text-foreground group-hover:text-accent transition-colors mb-3">
                         {item.title}
                       </h3>
@@ -430,7 +458,7 @@ export default async function PortfolioDetailPage({ params }) {
                         <ArrowLeft className="h-4 w-4 rotate-180" />
                       </div>
                     </div>
-                  </Link>
+                  </article>
                 );
               })}
             </div>
