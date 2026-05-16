@@ -6,32 +6,22 @@ const defaultContent = {
 
 export function Clients({ content = defaultContent }) {
   const resolved = { ...defaultContent, ...(content || {}) };
-  const logos = Array.isArray(resolved.logos) ? resolved.logos : defaultContent.logos;
-  const marqueeDurationSeconds = Number(resolved.marqueeDurationSeconds) || defaultContent.marqueeDurationSeconds;
+  const logos = Array.isArray(resolved.logos) && resolved.logos.length ? resolved.logos : defaultContent.logos;
+  const duration = Number(resolved.marqueeDurationSeconds) || defaultContent.marqueeDurationSeconds;
 
   return (
-    <section className="py-20 border-y border-border bg-secondary/30" suppressHydrationWarning>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 mb-10 text-center" suppressHydrationWarning>
+    <section className="border-y border-border py-8 overflow-hidden bg-card/30" data-gsap-section>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 mb-8 text-center">
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">{resolved.eyebrow}</p>
       </div>
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-        <div
-          className="flex w-max animate-marquee marquee-pauses-on-hover"
-          style={{ animationDuration: `${marqueeDurationSeconds}s` }}
-        >
-          {[...logos, ...logos].map((logo, index) => (
-            <div
-              key={`${logo}-${index}`}
-              className="flex items-center justify-center px-12 text-2xl sm:text-3xl font-bold tracking-tight text-muted-foreground/60 hover:text-foreground transition-colors"
-            >
-              {logo}
-            </div>
-          ))}
-        </div>
+      <div className="flex gap-16 whitespace-nowrap marquee-pauses-on-hover" style={{ animation: `marquee ${duration}s linear infinite` }}>
+        {[...logos, ...logos, ...logos].map((logo, index) => (
+          <div key={`${logo}-${index}`} className="flex items-center gap-16 text-3xl md:text-5xl font-semibold">
+            <span className="text-foreground/80">{logo}</span>
+            <span className="h-3 w-3 rounded-full bg-neon shrink-0" />
+          </div>
+        ))}
       </div>
     </section>
   );
 }
-

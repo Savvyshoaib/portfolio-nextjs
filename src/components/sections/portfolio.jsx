@@ -1,37 +1,19 @@
-import { Reveal } from "../reveal";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
 const defaultContent = {
-  eyebrow: "Selected work",
-  title: "A few things we are proud of.",
-  titleEmphasis: "proud of",
-  linkLabel: "All projects",
+  eyebrow: "Selected Work",
+  title: "Recent case studies.",
+  titleEmphasis: "studies",
+  linkLabel: "View archive",
   linkHref: "/portfolio",
 };
 
 const defaultProjects = [
-  {
-    title: "Lumen - Banking reimagined",
-    tag: "Product and Brand",
-    year: "2026",
-    color: "from-violet-500 to-fuchsia-500",
-    size: "lg",
-  },
-  {
-    title: "Atlas Studios",
-    tag: "Web and Motion",
-    year: "2025",
-    color: "from-emerald-400 to-teal-500",
-    size: "sm",
-  },
-  {
-    title: "Northwind Coffee",
-    tag: "Brand and Packaging",
-    year: "2025",
-    color: "from-amber-400 to-orange-600",
-    size: "sm",
-  },
+  { title: "Lumen AI", tag: "AI - SaaS", year: "2026" },
+  { title: "Northwave", tag: "Branding", year: "2025" },
+  { title: "Orbit Pay", tag: "Fintech - Web", year: "2025" },
+  { title: "Helio Studio", tag: "Motion - 3D", year: "2024" },
 ];
 
 function renderTitle(title, emphasis) {
@@ -43,10 +25,20 @@ function renderTitle(title, emphasis) {
   return (
     <>
       {before}
-      <em className="font-light">{emphasis}</em>
+      <span className="text-neon italic font-light">{emphasis}</span>
       {rest.join(emphasis)}
     </>
   );
+}
+
+function projectGradient(seed = 0) {
+  const sets = [
+    "linear-gradient(135deg, color-mix(in oklab, var(--brand-purple) 40%, transparent), color-mix(in oklab, var(--brand-orange) 30%, transparent))",
+    "linear-gradient(135deg, color-mix(in oklab, var(--brand-magenta) 36%, transparent), color-mix(in oklab, var(--brand-purple) 35%, transparent))",
+    "linear-gradient(135deg, color-mix(in oklab, var(--brand-orange) 35%, transparent), color-mix(in oklab, var(--brand-magenta) 28%, transparent))",
+    "linear-gradient(135deg, color-mix(in oklab, var(--brand-purple) 30%, transparent), color-mix(in oklab, var(--brand-magenta) 30%, transparent), color-mix(in oklab, var(--brand-orange) 25%, transparent))",
+  ];
+  return sets[seed % sets.length];
 }
 
 export function Portfolio({ content = defaultContent, items = defaultProjects }) {
@@ -55,72 +47,49 @@ export function Portfolio({ content = defaultContent, items = defaultProjects })
   const allProjectsHref = String(resolved.linkHref || "").trim() || "/portfolio";
 
   return (
-    <section className="py-24 sm:py-32" suppressHydrationWarning>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6" suppressHydrationWarning>
-        <Reveal>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
-            <div>
-              <span className="text-xs uppercase tracking-[0.3em] text-accent font-semibold">{resolved.eyebrow}</span>
-              <h2 className="mt-4 text-4xl sm:text-5xl font-bold tracking-tight max-w-2xl leading-[1.05]">
-                {renderTitle(resolved.title, resolved.titleEmphasis)}
-              </h2>
-            </div>
-            <Link
-              href={allProjectsHref}
-              className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
-            >
-              {resolved.linkLabel} <ArrowUpRight className="h-4 w-4" />
-            </Link>
+    <section id="work" className="relative py-32" data-gsap-section>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-neon mb-3">- {resolved.eyebrow}</div>
+            <h2 className="text-4xl md:text-6xl font-bold">{renderTitle(resolved.title, resolved.titleEmphasis)}</h2>
           </div>
-        </Reveal>
-
-        <div className="grid gap-4 md:grid-cols-3">
+          <Link href={allProjectsHref} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-neon transition group">
+            {resolved.linkLabel}
+            <ArrowUpRight className="h-4 w-4 transition group-hover:rotate-45" />
+          </Link>
+        </div>
+        <div className="grid md:grid-cols-2 gap-6" data-gsap-stagger>
           {list.map((project, index) => (
-            <Reveal
-              key={project.id || project.title || index}
-              delay={index * 0.05}
-              className={project.size === "lg" ? "md:col-span-2" : ""}
+            <Link
+              href={project.slug ? `/portfolio/${project.slug}` : allProjectsHref}
+              key={project.id || project.slug || project.title || index}
+              className="group relative aspect-[4/3] rounded-3xl overflow-hidden border border-border block"
+              data-gsap-item
             >
-              <Link
-                href={project.slug ? `/portfolio/${project.slug}` : allProjectsHref}
-                className="group relative block overflow-hidden rounded-3xl bg-card border border-border aspect-4/3 hover:shadow-glow transition-all duration-500"
-              >
-                <div className="relative aspect-4/3 overflow-hidden rounded-2xl shadow-elegant transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-lg">
-                  {project.cover_image_url ? (
-                    <img
-                      src={project.cover_image_url}
-                      alt={project.title}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div
-                      className={`absolute inset-0 bg-linear-to-br ${
-                        project.color || "from-accent/40 to-accent"
-                      }`}
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,oklch(1_0_0/0.25),transparent_55%)]" />
-                  <div className="absolute inset-0 noise" />
-                  <div className="relative h-full flex flex-col justify-between p-6 sm:p-8">
-                    <div className="flex items-center justify-between text-white/90 text-xs">
-                      <span className="rounded-full bg-black/20 backdrop-blur px-3 py-1">{project.tag || project.excerpt}</span>
-                      <span>{project.year}</span>
-                    </div>
-                    <div>
-                      <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">{project.title}</h3>
-                      <div className="mt-3 inline-flex items-center gap-1.5 text-sm text-white/90 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all">
-                        View case study <ArrowUpRight className="h-4 w-4" />
-                      </div>
-                    </div>
+              {project.cover_image_url ? (
+                <img src={project.cover_image_url} alt={project.title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              ) : (
+                <div className="absolute inset-0" style={{ background: projectGradient(index) }} />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+              <div className="absolute inset-0 opacity-60 mix-blend-screen">
+                <div className="absolute top-10 right-10 h-40 w-40 rounded-full bg-neon/40 blur-3xl transition-transform duration-700 group-hover:scale-150" />
+                <div className="absolute bottom-10 left-10 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+              </div>
+              <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                <div className="text-xs uppercase tracking-widest text-neon mb-2">{project.tag || project.excerpt}</div>
+                <div className="flex items-end justify-between">
+                  <h3 className="text-3xl md:text-4xl font-bold">{project.title}</h3>
+                  <div className="h-12 w-12 rounded-full bg-neon text-primary-foreground grid place-items-center transition-transform group-hover:rotate-45">
+                    <ArrowUpRight className="h-5 w-5" />
                   </div>
                 </div>
-              </Link>
-            </Reveal>
+              </div>
+            </Link>
           ))}
         </div>
       </div>
     </section>
   );
 }
-

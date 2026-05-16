@@ -160,7 +160,7 @@ export function ContactSection({ compact = false, content = defaultContent }) {
   };
 
   return (
-    <section className={compact ? "py-16" : "py-24 sm:py-32"} suppressHydrationWarning>
+    <section className={compact ? "py-20" : "py-32"} suppressHydrationWarning data-gsap-section>
       <div className="mx-auto max-w-7xl px-4 sm:px-6" suppressHydrationWarning>
         <div className="grid gap-12 md:grid-cols-2">
           <Reveal>
@@ -196,21 +196,21 @@ export function ContactSection({ compact = false, content = defaultContent }) {
 
           <Reveal delay={0.1}>
             {sent ? (
-              <div className="rounded-3xl border border-border bg-gradient-to-br from-accent/5 to-accent/10 p-8 sm:p-12 text-center shadow-elegant">
-                <div className="mx-auto w-16 h-16 bg-gradient-accent rounded-full flex items-center justify-center mb-6">
-                  <CheckCircle2 className="h-8 w-8 text-accent-foreground" />
+              <div className="rounded-3xl glass p-8 sm:p-12 text-center border border-neon/30">
+                <div className="mx-auto w-16 h-16 bg-neon rounded-full flex items-center justify-center mb-6">
+                  <CheckCircle2 className="h-8 w-8 text-primary-foreground" />
                 </div>
                 <h3 className="text-2xl font-bold mb-3">Message Sent Successfully!</h3>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Thank you for reaching out! We've received your message and will get back to you within 24 hours.
+                  Thank you for reaching out! We&apos;ve received your message and will get back to you within 24 hours.
                 </p>
                 <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-neon rounded-full animate-pulse"></div>
                   This form will reset automatically in 10 seconds...
                 </div>
               </div>
             ) : (
-              <form onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-7 sm:p-8 shadow-elegant">
+              <form onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-7 sm:p-8">
                 {errors.form && (
                   <div className="mb-5 rounded-xl bg-destructive/10 text-destructive px-4 py-3 text-sm">
                     {errors.form}
@@ -263,14 +263,14 @@ export function ContactSection({ compact = false, content = defaultContent }) {
                       placeholder="Tell us about your project..."
                       value={formData.message}
                       onChange={(e) => handleInputChange("message", e.target.value)}
-                      className="mt-2 w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all resize-none"
+                      className="mt-2 w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus:border-neon focus:outline-none focus:ring-2 focus:ring-neon/30 transition-all resize-none"
                     />
                     {errors.message && <p className="mt-1.5 text-xs text-destructive">{errors.message}</p>}
                   </div>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="group inline-flex items-center justify-center gap-2 w-full rounded-xl bg-foreground text-background px-6 py-3.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
+                    className="group inline-flex items-center justify-center gap-2 w-full rounded-full bg-neon text-primary-foreground px-6 py-3.5 text-sm font-medium hover:glow-neon transition-all disabled:opacity-60"
                   >
                     {loading ? (
                       <>
@@ -309,9 +309,9 @@ function Field({ label, name, type = "text", placeholder, error, value, onChange
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         className={`mt-2 w-full rounded-xl border px-4 py-3 text-sm focus:outline-none focus:ring-2 transition-all resize-none ${
-          error 
-            ? 'border-destructive bg-destructive/5 focus:border-destructive focus:ring-destructive/30' 
-            : 'border-input bg-background focus:border-accent focus:ring-accent/30'
+          error
+            ? "border-destructive bg-destructive/5 focus:border-destructive focus:ring-destructive/30"
+            : "border-input bg-background focus:border-neon focus:ring-neon/30"
         }`}
       />
       {error && <p className="mt-1.5 text-xs text-destructive animate-fadeIn">{error}</p>}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { CheckCircle2, Loader2, Send } from "lucide-react";
 
 function getDefaultServiceSlug(services, requestedSlug) {
@@ -50,16 +50,13 @@ export function ServiceInquiryForm({
     message: "",
   });
 
-  useEffect(() => {
-    setFormData((previous) => ({
-      ...previous,
-      serviceSlug: getDefaultServiceSlug(serviceOptions, previous.serviceSlug || resolvedDefaultServiceSlug),
-    }));
-  }, [serviceOptions, resolvedDefaultServiceSlug]);
+  const selectedServiceSlug = useMemo(() => {
+    return getDefaultServiceSlug(serviceOptions, formData.serviceSlug || resolvedDefaultServiceSlug);
+  }, [serviceOptions, formData.serviceSlug, resolvedDefaultServiceSlug]);
 
   const selectedService = useMemo(() => {
-    return serviceOptions.find((service) => service.slug === formData.serviceSlug) || null;
-  }, [serviceOptions, formData.serviceSlug]);
+    return serviceOptions.find((service) => service.slug === selectedServiceSlug) || null;
+  }, [serviceOptions, selectedServiceSlug]);
 
   const sectionTitle = currentServiceTitle
     ? `Start your ${currentServiceTitle.toLowerCase()} project`
@@ -72,7 +69,7 @@ export function ServiceInquiryForm({
     const email = formData.email.trim();
     const phoneNumber = formData.phoneNumber.trim();
     const message = formData.message.trim();
-    const serviceSlug = formData.serviceSlug;
+    const serviceSlug = selectedServiceSlug;
 
     if (!fullName || fullName.length < 2) {
       setError("Full name is required (at least 2 characters).");
@@ -134,12 +131,12 @@ export function ServiceInquiryForm({
   }
 
   return (
-    <section className="py-24 bg-linear-to-br from-accent via-accent/80 to-accent/60">
+    <section className="py-24 section-surface" data-gsap-section>
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <div className="grid gap-12 lg:grid-cols-2 items-center">
           <div>
-            <h2 className="text-4xl font-bold tracking-tight text-accent-foreground mb-6">{sectionTitle}</h2>
-            <p className="text-xl text-accent-foreground/90 mb-8 leading-relaxed">
+            <h2 className="text-4xl font-bold tracking-tight mb-6">{sectionTitle}</h2>
+            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
               Share your goals and timeline. We will review your request and get back to you quickly with the next steps.
             </p>
             <div className="space-y-4">
@@ -149,28 +146,28 @@ export function ServiceInquiryForm({
                 "No obligation consultation",
               ].map((bullet) => (
                 <div key={bullet} className="flex items-center gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-accent-foreground" />
-                  <span className="text-accent-foreground">{bullet}</span>
+                  <CheckCircle2 className="h-5 w-5 text-neon" />
+                  <span>{bullet}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-background/10 backdrop-blur-sm rounded-3xl p-8 border border-accent-foreground/20">
-            <h3 className="text-2xl font-bold text-accent-foreground mb-6">Service Inquiry Form</h3>
+          <div className="rounded-3xl p-8 border border-border bg-card">
+            <h3 className="text-2xl font-bold mb-6">Service Inquiry Form</h3>
 
             {sent ? (
-              <div className="rounded-2xl border border-accent-foreground/20 bg-background/20 px-5 py-6 text-center">
-                <CheckCircle2 className="h-8 w-8 text-accent-foreground mx-auto" />
-                <p className="mt-3 text-accent-foreground font-medium">Inquiry submitted successfully.</p>
-                <p className="mt-2 text-sm text-accent-foreground/80">
+              <div className="rounded-2xl border border-neon/30 glass px-5 py-6 text-center">
+                <CheckCircle2 className="h-8 w-8 text-neon mx-auto" />
+                <p className="mt-3 font-medium">Inquiry submitted successfully.</p>
+                <p className="mt-2 text-sm text-muted-foreground">
                   Our team will contact you shortly.
                 </p>
               </div>
             ) : (
               <form className="space-y-4" onSubmit={onSubmit}>
                 {error ? (
-                  <p className="rounded-xl border border-destructive/40 bg-destructive/20 px-4 py-3 text-sm text-accent-foreground">
+                  <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                     {error}
                   </p>
                 ) : null}
@@ -180,7 +177,7 @@ export function ServiceInquiryForm({
                     value={formData.fullName}
                     onChange={(event) => setFormData((previous) => ({ ...previous, fullName: event.target.value }))}
                     placeholder="Full Name"
-                    className="w-full px-4 py-3 rounded-xl bg-background/20 border border-accent-foreground/30 text-accent-foreground placeholder-accent-foreground/60 focus:outline-none focus:border-accent-foreground/60 transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:border-neon transition-colors"
                   />
                 </div>
                 <div>
@@ -189,7 +186,7 @@ export function ServiceInquiryForm({
                     value={formData.email}
                     onChange={(event) => setFormData((previous) => ({ ...previous, email: event.target.value }))}
                     placeholder="Email"
-                    className="w-full px-4 py-3 rounded-xl bg-background/20 border border-accent-foreground/30 text-accent-foreground placeholder-accent-foreground/60 focus:outline-none focus:border-accent-foreground/60 transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:border-neon transition-colors"
                   />
                 </div>
                 <div>
@@ -198,14 +195,14 @@ export function ServiceInquiryForm({
                     value={formData.phoneNumber}
                     onChange={(event) => setFormData((previous) => ({ ...previous, phoneNumber: event.target.value }))}
                     placeholder="Phone Number"
-                    className="w-full px-4 py-3 rounded-xl bg-background/20 border border-accent-foreground/30 text-accent-foreground placeholder-accent-foreground/60 focus:outline-none focus:border-accent-foreground/60 transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:border-neon transition-colors"
                   />
                 </div>
                 <div>
                   <select
-                    value={formData.serviceSlug}
+                    value={selectedServiceSlug}
                     onChange={(event) => setFormData((previous) => ({ ...previous, serviceSlug: event.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl bg-background/20 border border-accent-foreground/30 text-accent-foreground focus:outline-none focus:border-accent-foreground/60 transition-colors"
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:outline-none focus:border-neon transition-colors"
                   >
                     {serviceOptions.map((service) => (
                       <option key={service.slug} value={service.slug} className="text-foreground bg-background">
@@ -220,20 +217,20 @@ export function ServiceInquiryForm({
                     onChange={(event) => setFormData((previous) => ({ ...previous, message: event.target.value }))}
                     placeholder="Message"
                     rows={4}
-                    className="w-full px-4 py-3 rounded-xl bg-background/20 border border-accent-foreground/30 text-accent-foreground placeholder-accent-foreground/60 focus:outline-none focus:border-accent-foreground/60 transition-colors resize-none"
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:border-neon transition-colors resize-none"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full inline-flex items-center justify-center gap-2 bg-background text-accent px-6 py-3 rounded-xl font-semibold hover:bg-background/90 transition-all duration-300 disabled:opacity-60"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-neon text-primary-foreground px-6 py-3 font-semibold hover:glow-neon transition-all duration-300 disabled:opacity-60"
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   {loading ? "Submitting..." : "Submit Inquiry"}
                 </button>
               </form>
             )}
-            <p className="text-sm text-accent-foreground/70 mt-4 text-center">We usually reply within 24 hours.</p>
+            <p className="text-sm text-muted-foreground mt-4 text-center">We usually reply within 24 hours.</p>
           </div>
         </div>
       </div>

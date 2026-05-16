@@ -8,35 +8,35 @@ import { buildItemMetadata } from "@/lib/cms/item-seo";
 import "./carousel.css";
 
 const HERO_CATEGORY_STYLES = [
-  "from-blue-500/10 to-blue-600/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-  "from-purple-500/10 to-purple-600/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
-  "from-green-500/10 to-green-600/10 text-green-600 dark:text-green-400 border-green-500/20",
-  "from-orange-500/10 to-orange-600/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+  "from-primary/20 to-primary/10 text-primary border-primary/30",
+  "from-accent/20 to-accent/10 text-accent border-accent/30",
+  "from-neon/20 to-neon/10 text-neon border-neon/30",
+  "from-muted/40 to-muted/20 text-foreground border-border",
 ];
 
 const OVERVIEW_STACK_STYLES = [
-  "from-blue-500/10 to-blue-600/10 text-blue-700 dark:text-blue-300 border-blue-500/20",
-  "from-gray-500/10 to-gray-600/10 text-gray-700 dark:text-gray-300 border-gray-500/20",
-  "from-cyan-500/10 to-cyan-600/10 text-cyan-700 dark:text-cyan-300 border-cyan-500/20",
-  "from-blue-500/10 to-blue-600/10 text-blue-700 dark:text-blue-300 border-blue-500/20",
+  "from-primary/20 to-primary/10 text-primary border-primary/30",
+  "from-muted/40 to-muted/20 text-foreground border-border",
+  "from-neon/20 to-neon/10 text-neon border-neon/30",
+  "from-accent/20 to-accent/10 text-accent border-accent/30",
 ];
 
 const FALLBACK_RELATED_GRADIENTS = [
-  "from-blue-500 via-purple-500 to-pink-500",
-  "from-green-500 via-emerald-500 to-cyan-500",
-  "from-orange-500 via-red-500 to-pink-500",
+  "from-fuchsia-500/60 via-orange-400/50 to-amber-300/50",
+  "from-violet-500/60 via-fuchsia-500/50 to-orange-400/50",
+  "from-rose-500/60 via-fuchsia-500/50 to-amber-300/50",
 ];
 
 function metricClassForTone(tone) {
   switch (tone) {
     case "success":
-      return "from-green-500 to-emerald-500";
+      return "from-neon to-accent";
     case "info":
-      return "from-blue-500 to-cyan-500";
+      return "from-primary to-neon";
     case "warning":
-      return "from-orange-500 to-red-500";
+      return "from-accent to-primary";
     case "magenta":
-      return "from-purple-500 to-pink-500";
+      return "from-primary to-accent";
     default:
       return "from-accent to-accent/70";
   }
@@ -129,7 +129,7 @@ export default async function PortfolioDetailPage({ params }) {
                     </span>
                     <span className="text-sm text-muted-foreground font-medium">{hero.typeLabel}</span>
                   </div>
-                  <h1 className="text-5xl sm:text-7xl font-bold tracking-tight leading-[0.9] mb-8 bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                  <h1 className="text-5xl sm:text-7xl font-bold tracking-tight leading-[1.02] mb-8 bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                     {portfolioItem.title}
                   </h1>
                   <p className="text-2xl text-muted-foreground mb-8 leading-relaxed font-light">

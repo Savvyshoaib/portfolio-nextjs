@@ -33,7 +33,7 @@ export default async function ContactPage() {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
             <span className="text-xs uppercase tracking-[0.3em] text-accent font-semibold">{pageHeader.eyebrow || "Contact"}</span>
-            <h1 className="mt-4 text-5xl sm:text-7xl font-bold tracking-tight max-w-4xl leading-[0.95]">
+            <h1 className="mt-4 text-5xl sm:text-7xl font-bold tracking-tight max-w-4xl leading-[1.02]">
               {renderTitle(pageHeader.title, pageHeader.titleEmphasis)}
             </h1>
           </Reveal>

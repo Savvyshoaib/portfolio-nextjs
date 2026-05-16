@@ -8,9 +8,9 @@ import { parseEditorJsContent, renderEditorJsToHtml } from "@/lib/cms/editorjs-c
 import { buildItemMetadata } from "@/lib/cms/item-seo";
 
 const RELATED_CARD_GRADIENTS = [
-  "from-blue-500 to-cyan-500",
-  "from-purple-500 to-pink-500",
-  "from-green-500 to-emerald-500",
+  "from-fuchsia-500/60 to-orange-400/60",
+  "from-violet-500/60 to-fuchsia-500/60",
+  "from-rose-500/60 to-amber-300/60",
 ];
 
 function findPostBySlug(posts = [], slug = "") {
@@ -135,7 +135,7 @@ export default async function BlogDetailPage({ params }) {
                 <TrendingUp className="h-4 w-4" />
                 {payload.featuredLabel}
               </div>
-              <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-[0.95] mb-8 bg-linear-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-[1.02] mb-8 bg-linear-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                 {post.title}
               </h1>
               <p className="text-xl text-muted-foreground mb-10 leading-relaxed font-light max-w-3xl mx-auto">

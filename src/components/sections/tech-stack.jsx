@@ -1,25 +1,17 @@
-import { Reveal } from "../reveal";
-
 const defaultContent = {
-  eyebrow: "Tools of the trade",
-  title: "The stack behind the craft.",
-  titleEmphasis: "craft",
+  eyebrow: "The Team",
+  title: "Tools and minds behind the work.",
+  titleEmphasis: "work",
 };
 
 const defaultItems = [
   "React",
-  "TypeScript",
   "Next.js",
-  "TanStack",
+  "TypeScript",
   "Tailwind",
-  "Framer Motion",
   "GSAP",
-  "Three.js",
   "Figma",
-  "Webflow",
   "Supabase",
-  "Stripe",
-  "Vite",
   "Node",
   "Postgres",
   "Cloudflare",
@@ -34,39 +26,66 @@ function renderTitle(title, emphasis) {
   return (
     <>
       {before}
-      <em className="font-light">{emphasis}</em>
+      <span className="text-neon italic font-light">{emphasis}</span>
       {rest.join(emphasis)}
     </>
   );
 }
 
+function avatarGradient(index) {
+  const gradients = [
+    "linear-gradient(135deg, color-mix(in oklab, var(--brand-orange) 35%, transparent), color-mix(in oklab, var(--brand-magenta) 30%, transparent))",
+    "linear-gradient(135deg, color-mix(in oklab, var(--brand-purple) 35%, transparent), color-mix(in oklab, var(--brand-orange) 30%, transparent))",
+    "linear-gradient(135deg, color-mix(in oklab, var(--brand-magenta) 35%, transparent), color-mix(in oklab, var(--brand-purple) 28%, transparent))",
+    "linear-gradient(135deg, color-mix(in oklab, var(--brand-purple) 28%, transparent), color-mix(in oklab, var(--brand-magenta) 25%, transparent), color-mix(in oklab, var(--brand-orange) 25%, transparent))",
+  ];
+  return gradients[index % gradients.length];
+}
+
 export function TechStack({ content = defaultContent, items = defaultItems }) {
   const resolved = { ...defaultContent, ...(content || {}) };
   const stack = Array.isArray(items) && items.length ? items : defaultItems;
+  const featured = stack.slice(0, 4);
+  const rest = stack.slice(4);
 
   return (
-    <section className="py-24 sm:py-32" suppressHydrationWarning>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6" suppressHydrationWarning>
-        <Reveal>
-          <div className="text-center mb-14">
-            <span className="text-xs uppercase tracking-[0.3em] text-accent font-semibold">{resolved.eyebrow}</span>
-            <h2 className="mt-4 text-4xl sm:text-5xl font-bold tracking-tight max-w-2xl mx-auto leading-[1.05]">
-              {renderTitle(resolved.title, resolved.titleEmphasis)}
-            </h2>
+    <section className="py-32" data-gsap-section>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-neon mb-3">- {resolved.eyebrow}</div>
+            <h2 className="text-4xl md:text-6xl font-bold">{renderTitle(resolved.title, resolved.titleEmphasis)}</h2>
           </div>
-        </Reveal>
+          <p className="max-w-md text-muted-foreground">A compact senior team with a modern stack built for speed, reliability, and premium product quality.</p>
+        </div>
 
-        <div className="flex flex-wrap justify-center gap-3">
-          {stack.map((item, index) => (
-            <Reveal key={`${item}-${index}`} delay={index * 0.02}>
-              <span className="inline-flex items-center rounded-full glass px-5 py-2.5 text-sm font-medium hover:border-accent hover:text-accent transition-all hover:-translate-y-0.5">
-                {item}
-              </span>
-            </Reveal>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8" data-gsap-stagger>
+          {featured.map((name, index) => (
+            <div key={`${name}-${index}`} className="group relative rounded-3xl overflow-hidden border border-border aspect-[3/4]" data-gsap-item>
+              <div className="absolute inset-0" style={{ background: avatarGradient(index) }} />
+              <div className="absolute inset-0 grid place-items-center text-7xl font-bold text-foreground/10">{name.charAt(0)}</div>
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-6">
+                <h3 className="text-xl font-semibold">{name}</h3>
+                <p className="text-sm text-muted-foreground">Core technology</p>
+              </div>
+              <div className="absolute top-4 right-4 h-2 w-2 rounded-full bg-neon glow-neon" />
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap gap-3" data-gsap-stagger>
+          {rest.map((item, index) => (
+            <span
+              key={`${item}-${index}`}
+              className="rounded-full border border-border px-4 py-2 text-xs uppercase tracking-wider text-muted-foreground hover:border-neon hover:text-neon transition-colors"
+              data-gsap-item
+            >
+              {item}
+            </span>
           ))}
         </div>
       </div>
     </section>
   );
 }
-

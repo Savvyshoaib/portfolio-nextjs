@@ -1,116 +1,85 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowUpRight, Play, Sparkles } from "lucide-react";
 
 const defaultContent = {
-  badgeText: "Available for new projects - Q3 2026",
-  headingTop: "Design that",
-  headingEmphasis: "moves",
-  headingBottom: "the world.",
+  badgeText: "Available for new projects - 2026",
+  headingTop: "We Craft",
+  headingEmphasis: "Digital",
+  headingBottom: "Experiences.",
   description:
-    "We are an independent studio building bold brands, premium digital products, and award-winning web experiences for ambitious teams worldwide.",
-  primaryCtaLabel: "Start a project",
-  primaryCtaLink: "/contact",
-  secondaryCtaLabel: "View our work",
-  secondaryCtaLink: "/portfolio",
+    "A future-forward studio building bold brands, immersive websites, and AI-powered products for ambitious teams across the globe.",
+  primaryCtaLabel: "View our work",
+  primaryCtaLink: "/portfolio",
+  secondaryCtaLabel: "Start a project",
+  secondaryCtaLink: "/contact",
   stats: [
-    { value: "120+", label: "Projects shipped" },
-    { value: "48", label: "Awards won" },
-    { value: "12y", label: "Of craft" },
-    { value: "98%", label: "Client retention" },
+    { value: "12+", label: "Years experience" },
+    { value: "240", label: "Projects shipped" },
+    { value: "38", label: "Global clients" },
+    { value: "18", label: "Design awards" },
   ],
 };
 
 export function Hero({ content = defaultContent }) {
-  const resolved = {
-    ...defaultContent,
-    ...(content || {}),
-  };
+  const resolved = { ...defaultContent, ...(content || {}) };
   const stats = Array.isArray(resolved.stats) ? resolved.stats : defaultContent.stats;
 
   return (
-    <section className="relative pt-36 pb-24 sm:pt-44 sm:pb-32 overflow-hidden" suppressHydrationWarning>
-      <div className="absolute inset-0 bg-hero" suppressHydrationWarning />
-      <div className="absolute inset-0 grid-bg opacity-40" suppressHydrationWarning />
-      <motion.div
-        className="absolute -top-20 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-accent/20 blur-[120px]"
-        animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        suppressHydrationWarning
+    <section id="home" className="relative pt-40 pb-32 overflow-hidden noise" data-gsap-section>
+      <div className="blob bg-neon/30 h-[500px] w-[500px] -top-32 -left-32 animate-float" data-gsap-parallax data-gsap-depth="12" />
+      <div
+        className="blob bg-neon/15 h-[600px] w-[600px] top-40 -right-40 animate-float"
+        style={{ animationDelay: "3s" }}
+        data-gsap-parallax
+        data-gsap-depth="20"
       />
+      <div className="absolute inset-0 opacity-[0.06] pointer-events-none grid-bg" />
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6" suppressHydrationWarning>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex justify-center"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs font-medium text-foreground/80">
-            <Sparkles className="h-3.5 w-3.5 text-accent" />
-            {resolved.badgeText}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 relative">
+        <div className="mb-8 flex justify-center px-2 sm:px-0">
+          <div className="hero-status-badge inline-flex max-w-full items-center justify-center gap-2.5 rounded-full glass px-4 py-2.5 text-center text-[0.68rem] font-medium leading-[1.35] uppercase tracking-[0.16em] text-foreground/75 sm:px-6 sm:text-xs">
+            <Sparkles className="hero-status-icon h-3.5 w-3.5 shrink-0" />
+            <span className="hero-status-text3">{resolved.badgeText}</span>
+          </div>
+        </div>
+
+        <h1 className="py-[0.06em] text-center font-bold leading-[1.02] tracking-tight text-[clamp(3rem,10vw,7.8rem)]" data-gsap-reveal>
+          <span className="block">{resolved.headingTop}</span>
+          <span className="block">
+            <span className="hero-heading-emphasis text-neon text-glow italic font-light">{resolved.headingEmphasis}</span>{" "}
+            <span>{resolved.headingBottom}</span>
           </span>
-        </motion.div>
+        </h1>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="mt-8 text-center text-5xl sm:text-7xl md:text-[8rem] font-bold tracking-[-0.04em] leading-[0.9]"
-        >
-          <span className="text-gradient">{resolved.headingTop}</span>
-          <br />
-          <span className="italic font-light">{resolved.headingEmphasis}</span>
-          <span className="text-gradient"> {resolved.headingBottom}</span>
-        </motion.h1>
+        <p className="mt-8 max-w-2xl mx-auto text-center text-base md:text-lg text-muted-foreground">{resolved.description}</p>
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          className="mt-8 mx-auto max-w-2xl text-center text-base sm:text-lg text-muted-foreground"
-        >
-          {resolved.description}
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.45 }}
-          className="mt-10 flex flex-wrap items-center justify-center gap-3"
-        >
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
           <Link
             href={resolved.primaryCtaLink}
-            className="group inline-flex items-center gap-2 rounded-full bg-foreground text-background px-6 py-3 text-sm font-medium hover:opacity-90 transition-all hover:scale-[1.02]"
+            className="group inline-flex items-center gap-2 rounded-full bg-neon px-6 py-3.5 text-sm font-medium text-primary-foreground hover:glow-neon transition-all"
           >
             {resolved.primaryCtaLabel}
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:rotate-45" />
           </Link>
-          <Link
-            href={resolved.secondaryCtaLink}
-            className="inline-flex items-center gap-2 rounded-full glass px-6 py-3 text-sm font-medium hover:border-accent/50 transition-all"
-          >
+          <Link href={resolved.secondaryCtaLink} className="group inline-flex items-center gap-3 rounded-full glass px-5 py-3 text-sm">
+            <span className="grid place-items-center h-8 w-8 rounded-full bg-neon text-primary-foreground">
+              <Play className="h-3.5 w-3.5 fill-current" />
+            </span>
             {resolved.secondaryCtaLabel}
           </Link>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.6 }}
-          className="mt-20 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl mx-auto"
-        >
-          {stats.map((s) => (
-            <div key={s.label} className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold tracking-tight">{s.value}</div>
-              <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.label}</div>
+        <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto" data-gsap-stagger>
+          {stats.map((item) => (
+            <div key={item.label} className="glass rounded-3xl p-6 text-center hover:border-neon/50 transition-colors" data-gsap-item>
+              <div className="text-3xl md:text-4xl font-bold text-neon">{item.value}</div>
+              <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{item.label}</div>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
 }
-

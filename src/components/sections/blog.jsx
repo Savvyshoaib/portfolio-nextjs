@@ -1,37 +1,18 @@
-import { Reveal } from "../reveal";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
 const defaultContent = {
-  eyebrow: "Journal",
-  title: "Notes from the studio.",
-  titleEmphasis: "studio",
+  eyebrow: "Insights",
+  title: "Latest writing.",
+  titleEmphasis: "writing",
   linkLabel: "All articles",
   linkHref: "/blog",
 };
 
 const defaultPosts = [
-  {
-    title: "The new rules of motion design in 2026",
-    tag: "Motion",
-    date: "Apr 22, 2026",
-    excerpt:
-      "Why restraint is the new flex, and how to use motion to direct attention without exhausting it.",
-  },
-  {
-    title: "Designing systems that survive growth",
-    tag: "Systems",
-    date: "Mar 14, 2026",
-    excerpt:
-      "A practical guide to building tokens, components, and patterns that scale with your team.",
-  },
-  {
-    title: "What we learned shipping 12 SaaS launches",
-    tag: "Process",
-    date: "Feb 02, 2026",
-    excerpt:
-      "Hard-won lessons on scope, trust, and saying no to features that do not move the needle.",
-  },
+  { title: "The new wave of AI-native product design", tag: "AI - Design", date: "May 12, 2026" },
+  { title: "Inside our motion system for cinematic web", tag: "Motion - Web", date: "Apr 28, 2026" },
+  { title: "How brand systems compound over years", tag: "Branding", date: "Apr 03, 2026" },
 ];
 
 function renderTitle(title, emphasis) {
@@ -43,7 +24,7 @@ function renderTitle(title, emphasis) {
   return (
     <>
       {before}
-      <em className="font-light">{emphasis}</em>
+      <span className="text-neon italic font-light">{emphasis}</span>
       {rest.join(emphasis)}
     </>
   );
@@ -55,51 +36,47 @@ export function Blog({ content = defaultContent, items = defaultPosts }) {
   const allArticlesHref = String(resolved.linkHref || "").trim() || "/blog";
 
   return (
-    <section className="py-24 sm:py-32" suppressHydrationWarning>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6" suppressHydrationWarning>
-        <Reveal>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
-            <div>
-              <span className="text-xs uppercase tracking-[0.3em] text-accent font-semibold">{resolved.eyebrow}</span>
-              <h2 className="mt-4 text-4xl sm:text-5xl font-bold tracking-tight max-w-2xl leading-[1.05]">
-                {renderTitle(resolved.title, resolved.titleEmphasis)}
-              </h2>
-            </div>
-            <Link
-              href={allArticlesHref}
-              className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
-            >
-              {resolved.linkLabel} <ArrowUpRight className="h-4 w-4" />
-            </Link>
+    <section id="blog" className="py-32 border-t border-border" data-gsap-section>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-neon mb-3">- {resolved.eyebrow}</div>
+            <h2 className="text-4xl md:text-6xl font-bold">{renderTitle(resolved.title, resolved.titleEmphasis)}</h2>
           </div>
-        </Reveal>
+          <Link href={allArticlesHref} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-neon transition group">
+            {resolved.linkLabel}
+            <ArrowUpRight className="h-4 w-4 transition group-hover:rotate-45" />
+          </Link>
+        </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid md:grid-cols-3 gap-5" data-gsap-stagger>
           {posts.map((post, index) => (
-            <Reveal key={post.id || post.title || index} delay={index * 0.08}>
-              <Link
-                href={post.slug ? `/blog/${post.slug}` : allArticlesHref}
-                className="group block h-full rounded-3xl border border-border bg-card overflow-hidden hover:border-accent/40 hover:shadow-elegant transition-all"
-              >
-                <div className="aspect-[16/10] bg-gradient-to-br from-accent/30 via-accent/10 to-transparent relative overflow-hidden">
-                  <div className="absolute inset-0 grid-bg opacity-50" />
-                  <span className="absolute top-4 left-4 text-xs rounded-full bg-background/80 backdrop-blur px-3 py-1">
-                    {post.tag || post.payload?.tag || "Article"}
-                  </span>
+            <Link
+              href={post.slug ? `/blog/${post.slug}` : allArticlesHref}
+              key={post.id || post.slug || post.title || index}
+              className="group rounded-3xl border border-border bg-card overflow-hidden hover:border-neon/40 transition"
+              data-gsap-item
+            >
+              <div className="aspect-[16/10] relative overflow-hidden">
+                {post.cover_image_url ? (
+                  <img src={post.cover_image_url} alt={post.title} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-neon/20 via-card to-card" />
+                )}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-32 w-32 rounded-full bg-neon/30 blur-3xl transition-transform duration-700 group-hover:scale-150" />
+              </div>
+              <div className="p-6">
+                <div className="flex items-center justify-between text-xs text-muted-foreground uppercase tracking-widest">
+                  <span>{post.tag || post.payload?.tag || "Article"}</span>
+                  <span>{post.date || post.payload?.date}</span>
                 </div>
-                <div className="p-6">
-                  <p className="text-xs text-muted-foreground">{post.date || post.payload?.date}</p>
-                  <h3 className="mt-2 text-lg font-semibold tracking-tight group-hover:text-accent transition-colors">
-                    {post.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
-                </div>
-              </Link>
-            </Reveal>
+                <h3 className="mt-4 text-xl font-semibold leading-snug transition-colors group-hover:text-neon">{post.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
+              </div>
+            </Link>
           ))}
         </div>
       </div>
     </section>
   );
 }
-

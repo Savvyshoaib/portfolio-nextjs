@@ -1,28 +1,24 @@
-import { Reveal } from "../reveal";
 import { Quote } from "lucide-react";
 
 const defaultContent = {
-  eyebrow: "Kind words",
-  title: "From the people we build with.",
-  titleEmphasis: "build with",
+  eyebrow: "Testimonials",
+  title: "Trusted by visionaries.",
+  titleEmphasis: "visionaries",
 };
 
 const defaultItems = [
   {
-    quote:
-      "Working with Nova felt less like hiring an agency and more like adding a senior team overnight. The attention to detail is unmatched.",
+    quote: "Working with the studio felt like adding a senior product team overnight. The detail and polish were exceptional.",
     name: "Maya Chen",
     role: "VP Product, Lumen",
   },
   {
-    quote:
-      "They shipped something genuinely award-worthy. Our conversion is up 34% and our brand finally feels like us.",
+    quote: "The cleanest execution we have seen: motion, storytelling, and performance all dialed in together.",
     name: "Jordan Park",
     role: "Founder, Atlas",
   },
   {
-    quote:
-      "The level of craft, motion, and strategic thinking is rare. I would hire them again tomorrow.",
+    quote: "Strategic, collaborative, and incredibly fast from kickoff to launch.",
     name: "Sasha Muller",
     role: "Head of Brand, Vesper",
   },
@@ -37,7 +33,7 @@ function renderTitle(title, emphasis) {
   return (
     <>
       {before}
-      <em className="font-light">{emphasis}</em>
+      <span className="text-neon italic font-light">{emphasis}</span>
       {rest.join(emphasis)}
     </>
   );
@@ -48,33 +44,30 @@ export function Testimonials({ content = defaultContent, items = defaultItems })
   const list = Array.isArray(items) && items.length ? items : defaultItems;
 
   return (
-    <section className="py-24 sm:py-32">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6" suppressHydrationWarning>
-        <Reveal>
-          <div className="text-center mb-14">
-            <span className="text-xs uppercase tracking-[0.3em] text-accent font-semibold">{resolved.eyebrow}</span>
-            <h2 className="mt-4 text-4xl sm:text-5xl font-bold tracking-tight max-w-2xl mx-auto leading-[1.05]">
-              {renderTitle(resolved.title, resolved.titleEmphasis)}
-            </h2>
-          </div>
-        </Reveal>
-
-        <div className="grid gap-6 md:grid-cols-3">
+    <section className="py-32 border-y border-border bg-card/30" data-gsap-section>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="text-center mb-16">
+          <div className="text-xs uppercase tracking-widest text-neon mb-3">- {resolved.eyebrow}</div>
+          <h2 className="text-4xl md:text-6xl font-bold">{renderTitle(resolved.title, resolved.titleEmphasis)}</h2>
+        </div>
+        <div className="grid md:grid-cols-3 gap-6" data-gsap-stagger>
           {list.map((item, index) => (
-            <Reveal key={item.id || item.name || index} delay={index * 0.08}>
-              <figure className="h-full rounded-3xl border border-border bg-card p-7 hover:border-accent/40 hover:shadow-elegant transition-all">
-                <Quote className="h-6 w-6 text-accent" />
-                <blockquote className="mt-5 text-base leading-relaxed">&ldquo;{item.quote || item.title}&rdquo;</blockquote>
-                <figcaption className="mt-6 pt-5 border-t border-border">
-                  <div className="font-semibold text-sm">{item.name || item.payload?.name}</div>
+            <figure key={item.id || item.name || index} className="rounded-3xl glass p-8 hover:border-neon/40 transition" data-gsap-item>
+              <Quote className="h-8 w-8 text-neon mb-6" />
+              <blockquote className="text-lg leading-relaxed">{item.quote || item.title}</blockquote>
+              <figcaption className="mt-8 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-neon/20 grid place-items-center text-neon font-semibold">
+                  {(item.name || item.payload?.name || "A").charAt(0)}
+                </div>
+                <div>
+                  <div className="text-sm font-medium">{item.name || item.payload?.name}</div>
                   <div className="text-xs text-muted-foreground">{item.role || item.payload?.role || item.excerpt}</div>
-                </figcaption>
-              </figure>
-            </Reveal>
+                </div>
+              </figcaption>
+            </figure>
           ))}
         </div>
       </div>
     </section>
   );
 }
-

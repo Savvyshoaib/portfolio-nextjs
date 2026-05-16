@@ -4,36 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { Plus, Save, Trash2, Upload } from "lucide-react";
 import { adminApi } from "@/lib/cms/admin-client";
+import {
+  LOGO_HEIGHT_MAX,
+  LOGO_SIZE_MIN,
+  LOGO_WIDTH_MAX,
+  clampLogoHeight,
+  clampLogoWidth,
+  resolveLogoDimensions,
+} from "@/lib/cms/logo-size";
 
 const pageSeoKeys = ["home", "services", "portfolio", "blog", "contact"];
-const LOGO_SIZE_MIN = 24;
-const LOGO_SIZE_MAX = 200;
-const LEGACY_LOGO_SIZE_MAP = {
-  small: 24,
-  medium: 32,
-  large: 40,
-  xlarge: 48,
-};
-
-function clampLogoSize(value) {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) {
-    return LEGACY_LOGO_SIZE_MAP.medium;
-  }
-
-  return Math.min(LOGO_SIZE_MAX, Math.max(LOGO_SIZE_MIN, Math.round(parsed)));
-}
-
-function normalizeLogoSizeValue(value) {
-  if (typeof value === "string") {
-    const trimmed = value.trim().toLowerCase();
-    if (LEGACY_LOGO_SIZE_MAP[trimmed]) {
-      return LEGACY_LOGO_SIZE_MAP[trimmed];
-    }
-  }
-
-  return clampLogoSize(value);
-}
 
 function setNestedValue(source, path, value) {
   const keys = path.split(".");
@@ -107,15 +87,25 @@ export default function AdminSettingsPage() {
   const logoFallbackPreview = useMemo(() => getNestedValue(settings, "general.logoUrl", ""), [settings]);
   const logoLightPreview = useMemo(() => getNestedValue(settings, "general.logoLightUrl", ""), [settings]);
   const logoDarkPreview = useMemo(() => getNestedValue(settings, "general.logoDarkUrl", ""), [settings]);
-  const headerLogoSizePx = useMemo(
-    () => normalizeLogoSizeValue(getNestedValue(settings, "general.logoSize", LEGACY_LOGO_SIZE_MAP.medium)),
+  const headerLogoDimensions = useMemo(
+    () =>
+      resolveLogoDimensions({
+        width: getNestedValue(settings, "general.logoWidth"),
+        height: getNestedValue(settings, "general.logoHeight"),
+        size: getNestedValue(settings, "general.logoSize"),
+      }),
     [settings]
   );
   const footerLogoFallbackPreview = useMemo(() => getNestedValue(settings, "footer.logoUrl", ""), [settings]);
   const footerLogoLightPreview = useMemo(() => getNestedValue(settings, "footer.logoLightUrl", ""), [settings]);
   const footerLogoDarkPreview = useMemo(() => getNestedValue(settings, "footer.logoDarkUrl", ""), [settings]);
-  const footerLogoSizePx = useMemo(
-    () => normalizeLogoSizeValue(getNestedValue(settings, "footer.logoSize", LEGACY_LOGO_SIZE_MAP.medium)),
+  const footerLogoDimensions = useMemo(
+    () =>
+      resolveLogoDimensions({
+        width: getNestedValue(settings, "footer.logoWidth"),
+        height: getNestedValue(settings, "footer.logoHeight"),
+        size: getNestedValue(settings, "footer.logoSize"),
+      }),
     [settings]
   );
   const footerLinks = useMemo(() => normalizeFooterLinks(getNestedValue(settings, "footer.exploreLinks", [])), [settings]);
@@ -126,8 +116,26 @@ export default function AdminSettingsPage() {
     setSuccess("");
   };
 
-  const updateLogoSize = (path, value) => {
-    updateField(path, normalizeLogoSizeValue(value));
+  const updateLogoDimension = (scope, dimension, value) => {
+    const px = dimension === "width" ? clampLogoWidth(value) : clampLogoHeight(value);
+    const widthKey = `${scope}.logoWidth`;
+    const heightKey = `${scope}.logoHeight`;
+    const sizeKey = `${scope}.logoSize`;
+
+    setSettings((prev) => {
+      const current = resolveLogoDimensions({
+        width: getNestedValue(prev, widthKey),
+        height: getNestedValue(prev, heightKey),
+        size: getNestedValue(prev, sizeKey),
+      });
+      const nextWidth = dimension === "width" ? px : current.width;
+      const nextHeight = dimension === "height" ? px : current.height;
+
+      let next = setNestedValue(prev, dimension === "width" ? widthKey : heightKey, px);
+      next = setNestedValue(next, sizeKey, Math.max(nextWidth, nextHeight));
+      return next;
+    });
+    setSuccess("");
   };
 
   const onSave = async (event) => {
@@ -314,33 +322,13 @@ export default function AdminSettingsPage() {
             onChange={(checked) => updateField("general.logoOnly", checked)}
           />
 
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-muted-foreground">
-              Header Logo Size ({headerLogoSizePx}px)
-            </label>
-            <div className="grid gap-3 md:grid-cols-[1fr_120px]">
-              <input
-                type="range"
-                min={LOGO_SIZE_MIN}
-                max={LOGO_SIZE_MAX}
-                step={1}
-                value={headerLogoSizePx}
-                onChange={(event) => updateLogoSize("general.logoSize", event.target.value)}
-                className="w-full accent-(--color-accent)"
-              />
-              <input
-                type="number"
-                min={LOGO_SIZE_MIN}
-                max={LOGO_SIZE_MAX}
-                value={headerLogoSizePx}
-                onChange={(event) => updateLogoSize("general.logoSize", event.target.value)}
-                className="w-full rounded-xl border border-input bg-card px-4 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all"
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              You can increase header logo size up to {LOGO_SIZE_MAX}px.
-            </p>
-          </div>
+          <LogoDimensionFields
+            labelPrefix="Header Logo"
+            widthPx={headerLogoDimensions.width}
+            heightPx={headerLogoDimensions.height}
+            onWidthChange={(value) => updateLogoDimension("general", "width", value)}
+            onHeightChange={(value) => updateLogoDimension("general", "height", value)}
+          />
           
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
@@ -451,33 +439,13 @@ export default function AdminSettingsPage() {
             onChange={(checked) => updateField("footer.logoOnly", checked)}
           />
 
-          <div className="space-y-2">
-            <label className="text-xs uppercase tracking-widest text-muted-foreground">
-              Footer Logo Size ({footerLogoSizePx}px)
-            </label>
-            <div className="grid gap-3 md:grid-cols-[1fr_120px]">
-              <input
-                type="range"
-                min={LOGO_SIZE_MIN}
-                max={LOGO_SIZE_MAX}
-                step={1}
-                value={footerLogoSizePx}
-                onChange={(event) => updateLogoSize("footer.logoSize", event.target.value)}
-                className="w-full accent-(--color-accent)"
-              />
-              <input
-                type="number"
-                min={LOGO_SIZE_MIN}
-                max={LOGO_SIZE_MAX}
-                value={footerLogoSizePx}
-                onChange={(event) => updateLogoSize("footer.logoSize", event.target.value)}
-                className="w-full rounded-xl border border-input bg-card px-4 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all"
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              You can increase footer logo size up to {LOGO_SIZE_MAX}px.
-            </p>
-          </div>
+          <LogoDimensionFields
+            labelPrefix="Footer Logo"
+            widthPx={footerLogoDimensions.width}
+            heightPx={footerLogoDimensions.height}
+            onWidthChange={(value) => updateLogoDimension("footer", "width", value)}
+            onHeightChange={(value) => updateLogoDimension("footer", "height", value)}
+          />
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
@@ -788,6 +756,59 @@ export default function AdminSettingsPage() {
         {saving ? "Saving..." : "Save settings"}
       </button>
     </form>
+  );
+}
+
+function LogoDimensionFields({ labelPrefix, widthPx, heightPx, onWidthChange, onHeightChange }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-muted-foreground">
+        Width {LOGO_SIZE_MIN}–{LOGO_WIDTH_MAX}px, height {LOGO_SIZE_MIN}–{LOGO_HEIGHT_MAX}px.
+      </p>
+      <div className="grid gap-4 md:grid-cols-2">
+        <LogoDimensionControl
+          label={`${labelPrefix} Width (${widthPx}px)`}
+          value={widthPx}
+          min={LOGO_SIZE_MIN}
+          max={LOGO_WIDTH_MAX}
+          onChange={onWidthChange}
+        />
+        <LogoDimensionControl
+          label={`${labelPrefix} Height (${heightPx}px)`}
+          value={heightPx}
+          min={LOGO_SIZE_MIN}
+          max={LOGO_HEIGHT_MAX}
+          onChange={onHeightChange}
+        />
+      </div>
+    </div>
+  );
+}
+
+function LogoDimensionControl({ label, value, min, max, onChange }) {
+  return (
+    <div className="space-y-2">
+      <label className="text-xs uppercase tracking-widest text-muted-foreground">{label}</label>
+      <div className="grid gap-3 md:grid-cols-[1fr_120px]">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={1}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="w-full accent-(--color-accent)"
+        />
+        <input
+          type="number"
+          min={min}
+          max={max}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="w-full rounded-xl border border-input bg-card px-4 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all"
+        />
+      </div>
+    </div>
   );
 }
 

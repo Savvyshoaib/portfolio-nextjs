@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { ArrowUpRight } from "lucide-react";
+import { resolveLogoDimensions } from "@/lib/cms/logo-size";
 import { useTheme } from "./theme-provider";
 
 const defaultFooter = {
   description:
-    "A digital studio crafting bold brands, premium interfaces, and award-winning web experiences.",
+    "A creative-tech studio building bold brands and immersive products for the future of the web.",
   startProjectLabel: "Start a project",
   startProjectLink: "/contact",
   exploreLinks: [
@@ -24,7 +25,7 @@ const defaultFooter = {
   logoOnly: false,
   logoSize: "medium",
   copyrightSuffix: "All rights reserved.",
-  craftedLine: "Crafted with care - Available worldwide",
+  craftedLine: "Crafted with obsession - Available worldwide",
 };
 
 const fallbackSocialIcon =
@@ -39,11 +40,15 @@ function SocialIcon({ d }) {
 }
 
 function formatBrand(siteName) {
-  const trimmed = String(siteName || "Nova studio").trim();
+  const trimmed = String(siteName || "Nova Studio").trim();
+  if (!trimmed) {
+    return { main: "Nova", tail: "Studio" };
+  }
+
   const [firstWord, ...rest] = trimmed.split(" ");
   return {
     main: firstWord || "Nova",
-    tail: rest.join(" ") || "studio",
+    tail: rest.join(" "),
   };
 }
 
@@ -59,6 +64,7 @@ function getLogoSize(size) {
     large: 40,
     xlarge: 48,
   };
+
   return sizeMap[size] || 32;
 }
 
@@ -75,7 +81,7 @@ function resolveThemedLogo({ theme, lightUrl, darkUrl, fallbackUrl }) {
 }
 
 export function SiteFooter({
-  siteName = "Nova studio",
+  siteName = "Nova Studio",
   brandMark = "N",
   email = "hello@nova.studio",
   logoUrl = "",
@@ -83,25 +89,30 @@ export function SiteFooter({
   logoDarkUrl = "",
   logoOnly = false,
   logoSize = "medium",
+  logoWidth,
+  logoHeight,
   footer = defaultFooter,
 }) {
   const { theme, mounted } = useTheme();
   const pathname = usePathname();
+
   if (pathname?.startsWith("/admin")) {
     return null;
   }
 
   const brand = formatBrand(siteName);
   const resolvedFooter = { ...defaultFooter, ...(footer || {}) };
-  const exploreLinks = Array.isArray(resolvedFooter.exploreLinks)
-    ? resolvedFooter.exploreLinks
-    : defaultFooter.exploreLinks;
+  const exploreLinks = Array.isArray(resolvedFooter.exploreLinks) ? resolvedFooter.exploreLinks : defaultFooter.exploreLinks;
   const socials = Array.isArray(resolvedFooter.socials) ? resolvedFooter.socials : [];
   const footerLogoFallbackUrl = String(resolvedFooter.logoUrl || logoUrl || "").trim();
   const footerLogoLightUrl = String(resolvedFooter.logoLightUrl || logoLightUrl || "").trim();
   const footerLogoDarkUrl = String(resolvedFooter.logoDarkUrl || logoDarkUrl || "").trim();
   const footerLogoOnly = Boolean(resolvedFooter.logoOnly ?? logoOnly);
-  const footerLogoSize = getLogoSize(resolvedFooter.logoSize || logoSize || "medium");
+  const footerLogoDimensions = resolveLogoDimensions({
+    width: resolvedFooter.logoWidth ?? logoWidth,
+    height: resolvedFooter.logoHeight ?? logoHeight,
+    size: resolvedFooter.logoSize || logoSize || "medium",
+  });
   const footerEmail = String(resolvedFooter.email || email || "").trim();
   const startProjectLabel = String(resolvedFooter.startProjectLabel || defaultFooter.startProjectLabel);
   const startProjectLink = String(resolvedFooter.startProjectLink || defaultFooter.startProjectLink || "/contact");
@@ -114,101 +125,97 @@ export function SiteFooter({
   });
 
   return (
-    <footer className="relative mt-32 border-t border-border" suppressHydrationWarning>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16" suppressHydrationWarning>
-        <div className="grid gap-12 md:grid-cols-4">
-          <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-2">
-              {footerLogoOnly && footerLogoUrl ? (
-                <Image
-                  src={footerLogoUrl}
-                  alt={siteName || "Site Logo"}
-                  width={footerLogoSize}
-                  height={footerLogoSize}
-                  className="rounded-lg object-contain"
-                  style={{ width: footerLogoSize, height: footerLogoSize }}
-                  unoptimized
-                />
-              ) : footerLogoUrl ? (
+    <footer className="border-t border-border bg-card/40">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-20">
+        <div className="grid md:grid-cols-12 gap-12 mb-16">
+          <div className="md:col-span-5">
+            <Link href="/" className="flex items-center gap-2 mb-6">
+              {footerLogoUrl ? (
                 <>
                   <Image
                     src={footerLogoUrl}
                     alt={siteName || "Site Logo"}
-                    width={footerLogoSize}
-                    height={footerLogoSize}
+                    width={footerLogoDimensions.width}
+                    height={footerLogoDimensions.height}
                     className="rounded-lg object-contain"
-                    style={{ width: footerLogoSize, height: footerLogoSize }}
+                    style={{ width: footerLogoDimensions.width, height: footerLogoDimensions.height }}
                     unoptimized
                   />
-                  <span className="font-semibold tracking-tight text-lg">
-                    {brand.main}
-                    <span className="text-accent">.</span>
-                    {brand.tail}
-                  </span>
+                  {!footerLogoOnly ? (
+                    <span className="font-semibold tracking-tight text-lg">
+                      {brand.main}
+                      <span className="text-neon">.</span>
+                      {brand.tail}
+                    </span>
+                  ) : null}
                 </>
               ) : (
                 <>
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-accent text-accent-foreground font-black">
-                    {brandMark}
-                  </span>
-                  <span className="font-semibold tracking-tight text-lg">
-                    {brand.main}
-                    <span className="text-accent">.</span>
-                    {brand.tail}
-                  </span>
+                  <span className="grid h-9 w-9 place-items-center rounded-full bg-neon text-primary-foreground font-bold">{brandMark}</span>
+                  {!footerLogoOnly ? (
+                    <span className="font-semibold tracking-tight text-lg">
+                      {brand.main}
+                      <span className="text-neon">.</span>
+                      {brand.tail}
+                    </span>
+                  ) : null}
                 </>
               )}
             </Link>
-            <p className="mt-4 max-w-sm text-muted-foreground text-sm leading-relaxed">{resolvedFooter.description}</p>
+            <p className="text-muted-foreground max-w-sm">{resolvedFooter.description}</p>
             <Link
               href={startProjectLink}
-              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-accent transition-colors"
+              className="mt-8 inline-flex items-center gap-2 rounded-full bg-neon px-5 py-3 text-sm font-medium text-primary-foreground hover:glow-neon transition"
             >
-              {startProjectLabel} <ArrowUpRight className="h-4 w-4" />
+              {startProjectLabel}
+              <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
 
-          <div>
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Explore</h4>
-            <ul className="space-y-2.5 text-sm">
-              {exploreLinks.map((item) => (
-                <li key={item.to}>
-                  <Link href={item.to} className="hover:text-accent transition-colors">
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Social</h4>
-            <div className="flex gap-2">
-              {socials.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.url || "#"}
-                  aria-label={social.label}
-                  target={social.url?.startsWith("http") ? "_blank" : undefined}
-                  rel={social.url?.startsWith("http") ? "noreferrer" : undefined}
-                  className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-border hover:bg-accent hover:text-accent-foreground hover:border-accent transition-all"
-                >
-                  <SocialIcon d={social.iconPath} />
-                </a>
-              ))}
+          <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-8 text-sm">
+            <div>
+              <div className="text-xs uppercase tracking-widest text-neon mb-4">Explore</div>
+              <ul className="space-y-3">
+                {exploreLinks.map((item) => (
+                  <li key={item.to}>
+                    <Link href={item.to} className="text-muted-foreground hover:text-foreground transition">
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-            {footerEmail ? <p className="mt-6 text-xs text-muted-foreground">{footerEmail}</p> : null}
+            <div>
+              <div className="text-xs uppercase tracking-widest text-neon mb-4">Connect</div>
+              <div className="flex flex-wrap gap-2">
+                {socials.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.url || "#"}
+                    aria-label={social.label}
+                    target={social.url?.startsWith("http") ? "_blank" : undefined}
+                    rel={social.url?.startsWith("http") ? "noreferrer" : undefined}
+                    className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-neon transition"
+                  >
+                    <SocialIcon d={social.iconPath} />
+                  </a>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs uppercase tracking-widest text-neon mb-4">Contact</div>
+              {footerEmail ? <a href={`mailto:${footerEmail}`} className="text-muted-foreground hover:text-foreground transition break-all">{footerEmail}</a> : null}
+            </div>
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <p>
+        <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
+          <div>
             &copy; {new Date().getFullYear()} {siteName}. {resolvedFooter.copyrightSuffix}
-          </p>
-          <p>{resolvedFooter.craftedLine}</p>
+          </div>
+          <div>{resolvedFooter.craftedLine}</div>
         </div>
       </div>
     </footer>
   );
 }
-
