@@ -39,7 +39,7 @@ export function Hero({ content = defaultContent }) {
         <div className="mb-8 flex justify-center px-2 sm:px-0">
           <div className="hero-status-badge inline-flex max-w-full items-center justify-center gap-2.5 rounded-full glass px-4 py-2.5 text-center text-[0.68rem] font-medium leading-[1.35] uppercase tracking-[0.16em] text-foreground/75 sm:px-6 sm:text-xs">
             <Sparkles className="hero-status-icon h-3.5 w-3.5 shrink-0" />
-            <span className="hero-status-text3">{resolved.badgeText}</span>
+            <span className="hero-status-text3">{resolved.badgeText} </span>
           </div>
         </div>
 
