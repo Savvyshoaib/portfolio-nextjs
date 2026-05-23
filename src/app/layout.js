@@ -4,16 +4,15 @@ import { Poppins } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
-import { GlowCursor } from "@/components/glow-cursor";
-import { GsapScrollEffects } from "@/components/gsap-scroll-effects";
+import { SiteEffects } from "@/components/site-effects";
 import { getSiteFaviconPath } from "@/lib/cms/asset-cache";
-import { buildPageMetadata, getPublicSiteData, getGlobalSeoSettings } from "@/lib/cms/public";
+import { buildPageMetadata, getPublicSiteData } from "@/lib/cms/public";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 120;
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-poppins",
   display: "swap",
 });
@@ -57,8 +56,7 @@ export default async function RootLayout({ children }) {
         <HtmlInjection html={seo.customHeadHtml} className="cms-head-injection" />
 
         <ThemeProvider>
-          <GsapScrollEffects />
-          <GlowCursor />
+          <SiteEffects />
           <div className="relative min-h-screen flex flex-col" suppressHydrationWarning>
             <SiteHeader
               navigation={settings.navigation}

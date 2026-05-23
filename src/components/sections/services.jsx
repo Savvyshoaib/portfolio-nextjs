@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { resolveServiceIcon } from "@/lib/icon-map";
+import { renderTitle } from "@/lib/render-title";
 
 const defaultContent = {
   eyebrow: "Our Services",
@@ -9,21 +10,6 @@ const defaultContent = {
   linkLabel: "All services",
   linkHref: "/services",
 };
-
-function renderTitle(title, emphasis) {
-  if (!title || !emphasis || !title.includes(emphasis)) {
-    return title;
-  }
-
-  const [before, ...rest] = title.split(emphasis);
-  return (
-    <>
-      {before}
-      <span className="title-emphasis text-neon italic font-light">{emphasis}</span>
-      {rest.join(emphasis)}
-    </>
-  );
-}
 
 const defaultServices = [
   { title: "Branding & Identity", desc: "Distinct brand systems that capture vision and build trust.", icon: "Layout" },
@@ -42,7 +28,7 @@ export function Services({ content = defaultContent, items = defaultServices }) 
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
           <div>
             <div className="text-xs uppercase tracking-widest text-neon mb-3">- {resolved.eyebrow}</div>
-            <h2 className="text-4xl md:text-6xl font-bold leading-[1.05] max-w-3xl">{renderTitle(resolved.title, resolved.titleEmphasis)}</h2>
+            <h2 className="text-4xl md:text-6xl font-bold leading-[1.05] max-w-3xl">{renderTitle(resolved.title, resolved.titleEmphasis, "span")}</h2>
           </div>
           <Link href={allServicesHref} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-neon transition group">
             {resolved.linkLabel}

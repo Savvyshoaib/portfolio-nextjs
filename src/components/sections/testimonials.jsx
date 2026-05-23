@@ -1,4 +1,5 @@
 import { Quote } from "lucide-react";
+import { renderTitle } from "@/lib/render-title";
 
 const defaultContent = {
   eyebrow: "Testimonials",
@@ -24,20 +25,6 @@ const defaultItems = [
   },
 ];
 
-function renderTitle(title, emphasis) {
-  if (!title || !emphasis || !title.includes(emphasis)) {
-    return title;
-  }
-
-  const [before, ...rest] = title.split(emphasis);
-  return (
-    <>
-      {before}
-      <span className="title-emphasis text-neon italic font-light">{emphasis}</span>
-      {rest.join(emphasis)}
-    </>
-  );
-}
 
 export function Testimonials({ content = defaultContent, items = defaultItems }) {
   const resolved = { ...defaultContent, ...(content || {}) };

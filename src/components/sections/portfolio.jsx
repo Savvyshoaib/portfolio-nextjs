@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { renderTitle } from "@/lib/render-title";
 
 const defaultContent = {
   eyebrow: "Selected Work",
@@ -15,21 +16,6 @@ const defaultProjects = [
   { title: "Orbit Pay", tag: "Fintech - Web", year: "2025" },
   { title: "Helio Studio", tag: "Motion - 3D", year: "2024" },
 ];
-
-function renderTitle(title, emphasis) {
-  if (!title || !emphasis || !title.includes(emphasis)) {
-    return title;
-  }
-
-  const [before, ...rest] = title.split(emphasis);
-  return (
-    <>
-      {before}
-      <span className="title-emphasis text-neon italic font-light">{emphasis}</span>
-      {rest.join(emphasis)}
-    </>
-  );
-}
 
 function projectGradient(seed = 0) {
   const sets = [

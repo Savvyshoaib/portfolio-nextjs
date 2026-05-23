@@ -1,3 +1,5 @@
+import { renderTitle } from "@/lib/render-title";
+
 const defaultContent = {
   eyebrow: "The Team",
   title: "Tools and minds behind the work.",
@@ -16,21 +18,6 @@ const defaultItems = [
   "Postgres",
   "Cloudflare",
 ];
-
-function renderTitle(title, emphasis) {
-  if (!title || !emphasis || !title.includes(emphasis)) {
-    return title;
-  }
-
-  const [before, ...rest] = title.split(emphasis);
-  return (
-    <>
-      {before}
-      <span className="title-emphasis text-neon italic font-light">{emphasis}</span>
-      {rest.join(emphasis)}
-    </>
-  );
-}
 
 function avatarGradient(index) {
   const gradients = [

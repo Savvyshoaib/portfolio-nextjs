@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { ArrowUpRight, Play, Sparkles } from "lucide-react";
 
@@ -27,7 +25,7 @@ export function Hero({ content = defaultContent }) {
   const stats = Array.isArray(resolved.stats) ? resolved.stats : defaultContent.stats;
 
   return (
-    <section id="home" className="relative pt-40 pb-32 noise" data-gsap-section>
+    <section id="home" className="relative pt-32 sm:pt-40 pb-24 sm:pb-32 noise overflow-x-clip" data-gsap-section>
       <div className="blob bg-neon/30 h-[500px] w-[500px] -top-32 -left-32 animate-float" data-gsap-parallax data-gsap-depth="12" />
       <div
         className="blob bg-neon/15 h-[600px] w-[600px] top-40 -right-40 animate-float"
@@ -45,7 +43,7 @@ export function Hero({ content = defaultContent }) {
           </div>
         </div>
 
-        <h1 className="py-[0.06em] text-center font-bold leading-[1.02] tracking-tight text-[clamp(3rem,10vw,7.8rem)]" data-gsap-reveal>
+        <h1 className="py-[0.06em] px-1 text-center font-bold leading-[1.05] tracking-tight text-[clamp(2.25rem,9vw,7.8rem)] text-balance" data-gsap-reveal>
           <span className="block">{resolved.headingTop}</span>
           <span className="block">
             <span className="hero-heading-emphasis text-neon text-glow italic font-light">{resolved.headingEmphasis}</span>{" "}

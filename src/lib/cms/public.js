@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { getSiteFaviconPath } from "./asset-cache";
 import { getCmsSnapshot } from "./server";
 import { normalizeBlogPayload } from "./blog-detail";
@@ -22,7 +23,7 @@ function toKeywords(rawKeywords) {
     .filter(Boolean);
 }
 
-async function getPublicSiteData() {
+export const getPublicSiteData = cache(async function getPublicSiteData() {
   const snapshot = await getCmsSnapshot();
   const { settings, sections, content } = snapshot;
 
@@ -66,11 +67,9 @@ async function getPublicSiteData() {
     })),
     techStack: content.techStack.map((item) => item.title).filter(Boolean),
   };
-}
+});
 
-export { getPublicSiteData };
-
-export async function getGlobalSeoSettings() {
+export const getGlobalSeoSettings = cache(async function getGlobalSeoSettings() {
   const data = await getPublicSiteData();
   return {
     seo: data.settings.seo || {},
@@ -78,7 +77,7 @@ export async function getGlobalSeoSettings() {
     robots: data.settings.robots || {},
     general: data.settings.general || {},
   };
-}
+});
 
 export async function buildPageMetadata(pageKey = "home") {
   const { seo, pageSeo, robots, general } = await getGlobalSeoSettings();

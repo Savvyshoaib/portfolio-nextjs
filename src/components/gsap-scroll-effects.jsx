@@ -30,7 +30,6 @@ export function GsapScrollEffects() {
       return undefined;
     }
 
-    const normalizer = ScrollTrigger.normalizeScroll(true);
     const ctx = gsap.context(() => {
       const sections = gsap.utils.toArray("main section");
       sections.forEach((section, index) => {
@@ -120,12 +119,7 @@ export function GsapScrollEffects() {
 
     ScrollTrigger.refresh();
 
-    return () => {
-      ctx.revert();
-      if (typeof normalizer?.kill === "function") {
-        normalizer.kill();
-      }
-    };
+    return () => ctx.revert();
   }, [pathname]);
 
   return null;

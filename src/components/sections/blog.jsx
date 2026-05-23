@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { renderTitle } from "@/lib/render-title";
 
 const defaultContent = {
   eyebrow: "Insights",
@@ -14,21 +15,6 @@ const defaultPosts = [
   { title: "Inside our motion system for cinematic web", tag: "Motion - Web", date: "Apr 28, 2026" },
   { title: "How brand systems compound over years", tag: "Branding", date: "Apr 03, 2026" },
 ];
-
-function renderTitle(title, emphasis) {
-  if (!title || !emphasis || !title.includes(emphasis)) {
-    return title;
-  }
-
-  const [before, ...rest] = title.split(emphasis);
-  return (
-    <>
-      {before}
-      <span className="title-emphasis text-neon italic font-light">{emphasis}</span>
-      {rest.join(emphasis)}
-    </>
-  );
-}
 
 export function Blog({ content = defaultContent, items = defaultPosts }) {
   const resolved = { ...defaultContent, ...(content || {}) };

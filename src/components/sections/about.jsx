@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { renderTitle } from "@/lib/render-title";
 
 const defaultContent = {
   eyebrow: "Expertise",
@@ -15,21 +16,6 @@ const defaultContent = {
   buttonLabel: "Start a project",
   buttonLink: "/contact",
 };
-
-function renderTitle(title, emphasis) {
-  if (!title || !emphasis || !title.includes(emphasis)) {
-    return title;
-  }
-
-  const [before, ...rest] = title.split(emphasis);
-  return (
-    <>
-      {before}
-      <span className="title-emphasis text-neon italic font-light">{emphasis}</span>
-      {rest.join(emphasis)}
-    </>
-  );
-}
 
 export function About({ content = defaultContent }) {
   const resolved = { ...defaultContent, ...(content || {}) };

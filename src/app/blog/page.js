@@ -1,24 +1,10 @@
 import Link from "next/link";
 import { Reveal } from "@/components/reveal";
 import { buildPageMetadata, getPublicSiteData } from "@/lib/cms/public";
+import { renderTitle } from "@/lib/render-title";
 
 export async function generateMetadata() {
   return buildPageMetadata("blog");
-}
-
-function renderTitle(title, emphasis) {
-  if (!title || !emphasis || !title.includes(emphasis)) {
-    return title;
-  }
-
-  const [before, ...rest] = title.split(emphasis);
-  return (
-    <>
-      {before}
-      <em className="title-emphasis font-light text-neon">{emphasis}</em>
-      {rest.join(emphasis)}
-    </>
-  );
 }
 
 export default async function BlogPage() {

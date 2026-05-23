@@ -300,15 +300,7 @@ export async function saveSection(key, value) {
 }
 
 export async function getContentItems(type, { publishedOnly = false, featuredOnly = false } = {}) {
-  console.log(`getContentItems called for type: ${type}, publishedOnly: ${publishedOnly}`);
-  console.log(`SUPABASE_ENV:`, {
-    url: SUPABASE_ENV.url,
-    hasPublicEnv: SUPABASE_ENV.hasPublicEnv,
-    hasServiceRoleEnv: SUPABASE_ENV.hasServiceRoleEnv
-  });
-  
   if (!CMS_CONTENT_TYPES.includes(type)) {
-    console.log(`Invalid content type: ${type}`);
     return [];
   }
 
@@ -316,7 +308,6 @@ export async function getContentItems(type, { publishedOnly = false, featuredOnl
   await trySeedDefaults();
   const supabase = getReadClient();
   if (!supabase) {
-    console.log("No Supabase client available, returning defaults");
     return withDefaultsForType(type, []);
   }
 
@@ -340,11 +331,6 @@ export async function getContentItems(type, { publishedOnly = false, featuredOnl
   if (error) {
     console.error(`Database error for ${type}:`, error);
     return withDefaultsForType(type, []);
-  }
-  
-  console.log(`Found ${data?.length || 0} items for type: ${type}`);
-  if (type === 'portfolio') {
-    console.log('Portfolio items:', data?.map(item => ({id: item.id, title: item.title, slug: item.slug})) || []);
   }
   
   return withDefaultsForType(type, data || []);
