@@ -34,22 +34,17 @@ export function GsapScrollEffects() {
     const ctx = gsap.context(() => {
       const sections = gsap.utils.toArray("main section");
       sections.forEach((section, index) => {
-        const mode = index % 5;
+        const mode = index % 3;
         const initial =
           mode === 1
-            ? { autoAlpha: 0, x: -24 }
-            : mode === 2
-              ? { autoAlpha: 0, x: 24 }
-              : mode === 3
-                ? { autoAlpha: 0, scale: 0.98 }
-                : { autoAlpha: 0, y: 32 };
+            ? { autoAlpha: 0, scale: 0.98 }
+            : { autoAlpha: 0, y: 32 };
 
         gsap.fromTo(
           section,
           initial,
           {
             autoAlpha: 1,
-            x: 0,
             y: 0,
             scale: 1,
             duration: 0.95,

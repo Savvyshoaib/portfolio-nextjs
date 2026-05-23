@@ -1,3 +1,5 @@
+import { CONTACT_DEFAULT_CONTENT, normalizeContactContent } from "./contact-section";
+
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
@@ -241,8 +243,9 @@ export const HOME_SECTION_DEFINITIONS = {
     defaultContent: BLOG_DEFAULT_CONTENT,
   },
   contact: {
-    label: "Contact Form",
-    editable: false,
+    label: "Contact Section",
+    editable: true,
+    defaultContent: CONTACT_DEFAULT_CONTENT,
   },
 };
 
@@ -435,6 +438,8 @@ export function normalizeHomeSectionContent(type, content) {
       return normalizeTestimonialsContent(content);
     case "blog":
       return normalizeBlogContent(content);
+    case "contact":
+      return normalizeContactContent(content);
     default:
       return undefined;
   }
@@ -495,7 +500,7 @@ function buildLegacyHomeLayout(sections = {}) {
     createLegacyItem("testimonials-1", "testimonials", source.testimonials),
     createLegacyItem("cta-2", "cta", source.ctaSecondary),
     createLegacyItem("blog-1", "blog", source.blog || source.pageHeaders?.blog),
-    createLegacyItem("contact-1", "contact"),
+    createLegacyItem("contact-1", "contact", source.contact),
   ].filter(Boolean);
 }
 
@@ -524,6 +529,8 @@ function getLegacyContentForEditableType(type, itemId, sections = {}) {
       return source.testimonials;
     case "blog":
       return source.blog || source.pageHeaders?.blog;
+    case "contact":
+      return source.contact;
     default:
       return undefined;
   }

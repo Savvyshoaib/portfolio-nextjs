@@ -59,7 +59,7 @@ export default async function HomePage() {
       case "blog":
         return <Blog key={item.id} content={item.content || sections.blog} items={latestBlogPosts} />;
       case "contact":
-        return <ContactSection key={item.id} content={sections.contact} />;
+        return <ContactSection key={item.id} content={item.content || sections.contact} />;
       default:
         return null;
     }

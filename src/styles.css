@@ -152,6 +152,7 @@
 
   h1, h2, h3, h4, h5 {
     letter-spacing: -0.02em;
+    overflow: visible;
   }
 
   h1, h2, h3, h4, h5, p {
@@ -166,10 +167,26 @@
 
 @layer utilities {
   .text-neon {
+    display: inline-block;
     background: var(--gradient-brand);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    padding-inline: 0.12em;
+    padding-block: 0.08em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  .title-emphasis,
+  .hero-heading-emphasis,
+  h1 em,
+  h2 em,
+  h3 em {
+    display: inline-block;
+    padding-inline: 0.1em;
+    padding-block: 0.08em;
+    overflow: visible;
   }
 
   .bg-neon {
@@ -194,10 +211,19 @@
   }
 
   .hero-heading-emphasis {
-    display: inline-block;
-    padding-inline: 0.05em;
-    padding-block: 0.08em;
     line-height: 1.08;
+  }
+
+  .page-hero {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .page-hero__bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
   }
 
   .hero-status-badge {

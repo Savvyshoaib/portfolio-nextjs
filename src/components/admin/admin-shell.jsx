@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Blocks, ChevronDown, ChevronRight, FileText, ImageIcon, LayoutDashboard, LogOut, Settings, User } from "lucide-react";
+import { ClearCacheButton } from "@/components/admin/clear-cache-button";
 import { adminApi } from "@/lib/cms/admin-client";
 import { cn } from "@/lib/utils";
 
@@ -139,7 +140,8 @@ export function AdminShell({ children }) {
               );
             })}
           </nav>
-          <div className="shrink-0 flex border-t border-border p-4">
+          <div className="shrink-0 space-y-3 border-t border-border p-4">
+            <ClearCacheButton className="w-full" />
             <button
               onClick={onLogout}
               className="group flex w-full items-center px-2 py-2 text-sm font-medium rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"

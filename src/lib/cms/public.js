@@ -1,4 +1,5 @@
 import "server-only";
+import { getSiteFaviconPath } from "./asset-cache";
 import { getCmsSnapshot } from "./server";
 import { normalizeBlogPayload } from "./blog-detail";
 
@@ -114,11 +115,12 @@ export async function buildPageMetadata(pageKey = "home") {
     metadata.metadataBase = metadataBase;
   }
 
-  if (seo.faviconUrl) {
+  const faviconPath = getSiteFaviconPath(seo);
+  if (faviconPath) {
     metadata.icons = {
-      icon: seo.faviconUrl,
-      shortcut: seo.faviconUrl,
-      apple: seo.faviconUrl,
+      icon: faviconPath,
+      shortcut: faviconPath,
+      apple: faviconPath,
     };
   }
 

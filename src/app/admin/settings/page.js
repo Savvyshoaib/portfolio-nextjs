@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { Plus, Save, Trash2, Upload } from "lucide-react";
+import { ClearCacheButton } from "@/components/admin/clear-cache-button";
+import { getFaviconHref } from "@/lib/cms/asset-cache";
 import { adminApi } from "@/lib/cms/admin-client";
 import {
   LOGO_HEIGHT_MAX,
@@ -30,6 +32,12 @@ function setNestedValue(source, path, value) {
     cursor = cursor[key];
   });
 
+  return next;
+}
+
+function withFaviconVersion(settings, faviconUrl) {
+  let next = setNestedValue(settings, "seo.faviconUrl", faviconUrl);
+  next = setNestedValue(next, "seo.faviconVersion", Date.now());
   return next;
 }
 
@@ -83,7 +91,10 @@ export default function AdminSettingsPage() {
     run();
   }, []);
 
-  const faviconPreview = useMemo(() => getNestedValue(settings, "seo.faviconUrl", ""), [settings]);
+  const faviconPreview = useMemo(() => {
+    if (!settings) return "";
+    return getFaviconHref(settings.seo || {});
+  }, [settings]);
   const logoFallbackPreview = useMemo(() => getNestedValue(settings, "general.logoUrl", ""), [settings]);
   const logoLightPreview = useMemo(() => getNestedValue(settings, "general.logoLightUrl", ""), [settings]);
   const logoDarkPreview = useMemo(() => getNestedValue(settings, "general.logoDarkUrl", ""), [settings]);
@@ -146,7 +157,10 @@ export default function AdminSettingsPage() {
     setSuccess("");
 
     try {
-      await adminApi.saveSettings(settings);
+      const faviconUrl = getNestedValue(settings, "seo.faviconUrl", "").trim();
+      const payload = faviconUrl ? withFaviconVersion(settings, faviconUrl) : settings;
+      const result = await adminApi.saveSettings(payload);
+      setSettings(result.settings || payload);
       setSuccess("Settings saved successfully.");
     } catch (saveError) {
       setError(saveError.message || "Failed to save settings.");
@@ -159,11 +173,22 @@ export default function AdminSettingsPage() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
     try {
       const result = await adminApi.uploadFile(file, "favicon");
-      updateField("seo.faviconUrl", result.url);
-    } catch (error) {
-      setError(error.message || "Failed to upload favicon.");
+      const payload = withFaviconVersion(settings, result.url);
+      setSettings(payload);
+      const saved = await adminApi.saveSettings(payload);
+      setSettings(saved.settings || payload);
+      setSuccess("Favicon uploaded and saved. Use “Clear site cache” below if your browser still shows the old icon.");
+    } catch (uploadError) {
+      setError(uploadError.message || "Failed to upload favicon.");
+    } finally {
+      setSaving(false);
+      event.target.value = "";
     }
   };
 
@@ -623,7 +648,15 @@ export default function AdminSettingsPage() {
       </section>
 
       <section className="rounded-2xl border border-border bg-background p-5 space-y-4">
-        <h2 className="text-lg font-semibold">SEO and Meta Controls</h2>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">SEO and Meta Controls</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              After changing the favicon, save settings or upload a new file. Browsers cache favicons aggressively.
+            </p>
+          </div>
+          <ClearCacheButton className="shrink-0" />
+        </div>
 
         <div className="space-y-2">
           <label className="text-xs uppercase tracking-widest text-muted-foreground">Favicon URL</label>

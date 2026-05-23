@@ -26,12 +26,14 @@ export function CTA({ eyebrow, title, subtitle, cta, ctaLink, content }) {
   return (
     <section id="contact" className="py-32" data-gsap-section>
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-card border border-border p-12 md:p-20 text-center noise">
-          <div className="blob bg-neon/30 h-[500px] w-[500px] -top-40 left-1/2 -translate-x-1/2 animate-float" data-gsap-parallax data-gsap-depth="14" />
-          <div className="relative">
+        <div className="relative rounded-[2.5rem] bg-card border border-border p-12 md:p-20 text-center noise">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2.5rem]" aria-hidden>
+            <div className="blob bg-neon/30 h-[500px] w-[500px] -top-40 left-1/2 -translate-x-1/2 animate-float" data-gsap-parallax data-gsap-depth="14" />
+          </div>
+          <div className="relative z-10">
             <div className="text-xs uppercase tracking-widest text-neon mb-4">- {resolved.eyebrow}</div>
-            <h2 className="text-4xl md:text-7xl font-bold leading-[1.05]">
-              <span className="text-neon italic font-light text-glow">{resolved.title}</span>
+            <h2 className="text-4xl md:text-7xl font-bold leading-[1.12] px-2 sm:px-4">
+              <span className="title-emphasis text-neon italic font-light text-glow">{resolved.title}</span>
             </h2>
             <p className="mt-6 max-w-xl mx-auto text-muted-foreground">{resolved.subtitle}</p>
             <Link

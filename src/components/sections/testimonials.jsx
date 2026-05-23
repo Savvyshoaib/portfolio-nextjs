@@ -33,7 +33,7 @@ function renderTitle(title, emphasis) {
   return (
     <>
       {before}
-      <span className="text-neon italic font-light">{emphasis}</span>
+      <span className="title-emphasis text-neon italic font-light">{emphasis}</span>
       {rest.join(emphasis)}
     </>
   );

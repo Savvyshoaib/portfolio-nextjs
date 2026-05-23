@@ -61,6 +61,9 @@ export const adminApi = {
       body: JSON.stringify({ settings }),
     });
   },
+  clearSiteCache() {
+    return request("/api/admin/cache", { method: "POST" });
+  },
   getSections() {
     return request("/api/admin/sections");
   },

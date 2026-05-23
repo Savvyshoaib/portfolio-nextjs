@@ -1017,7 +1017,10 @@ export default function ServicesManagementPage() {
                 />
               </Field>
             </div>
-            <Field label="Process Steps" hint="One step per line: 01 | Title | Description">
+            <Field
+              label="Process Steps"
+              hint="One per line: 01 | Title | Description. Titles show on /services cards; full steps on the service detail page. Each service has its own list."
+            >
               <textarea
                 rows={8}
                 value={formData.payload.processSteps}

@@ -117,10 +117,10 @@ export default async function BlogDetailPage({ params }) {
 
   return (
     <>
-      <section className="pt-40 pb-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-br from-background via-background to-accent/8" />
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
-        <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
+      <section className="page-hero pt-40 pb-16">
+        <div className="page-hero__bg bg-linear-to-br from-background via-background to-accent/8" aria-hidden />
+        <div className="page-hero__bg bg-grid-pattern opacity-[0.02]" aria-hidden />
+        <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
           <Reveal>
             <Link
               href="/blog"
@@ -135,7 +135,7 @@ export default async function BlogDetailPage({ params }) {
                 <TrendingUp className="h-4 w-4" />
                 {payload.featuredLabel}
               </div>
-              <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-[1.02] mb-8 bg-linear-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-[1.05] mb-8 text-foreground">
                 {post.title}
               </h1>
               <p className="text-xl text-muted-foreground mb-10 leading-relaxed font-light max-w-3xl mx-auto">

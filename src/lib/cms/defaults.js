@@ -87,6 +87,7 @@ export const DEFAULT_SITE_SETTINGS = {
     ogImageUrl: "",
     twitterCard: "summary_large_image",
     faviconUrl: "",
+    faviconVersion: null,
     headerScripts: "",
     footerScripts: "",
     customHeadHtml: "",
@@ -222,8 +223,20 @@ export const DEFAULT_SITE_SECTIONS = {
     titleEmphasis: "unforgettable",
     description:
       "Drop a line about your project, timeline, and ambitions. We will reply within 24 hours.",
-    email: "hello@nova.studio",
-    studio: "Lisbon - Remote worldwide",
+    items: [
+      {
+        label: "Email",
+        value: "hello@nova.studio",
+        href: "mailto:hello@nova.studio",
+        icon: "Mail",
+      },
+      {
+        label: "Studio",
+        value: "Lisbon - Remote worldwide",
+        href: "",
+        icon: "MapPin",
+      },
+    ],
   },
   ctaPrimary: {
     eyebrow: "Collaborate",

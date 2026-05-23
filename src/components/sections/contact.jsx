@@ -2,17 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Reveal } from "../reveal";
-import { CheckCircle2, Mail, MapPin, Send, Loader2 } from "lucide-react";
-
-const defaultContent = {
-  eyebrow: "Contact",
-  title: "Let us make something unforgettable.",
-  titleEmphasis: "unforgettable",
-  description:
-    "Drop a line about your project, timeline, and ambitions. We will reply within 24 hours.",
-  email: "hello@nova.studio",
-  studio: "Lisbon - Remote worldwide",
-};
+import { CheckCircle2, Send, Loader2 } from "lucide-react";
+import { CONTACT_DEFAULT_CONTENT, resolveContactIcon } from "@/lib/cms/contact-section";
 
 function renderTitle(title, emphasis) {
   if (!title || !emphasis || !title.includes(emphasis)) {
@@ -23,13 +14,13 @@ function renderTitle(title, emphasis) {
   return (
     <>
       {before}
-      <em className="font-light">{emphasis}</em>
+      <em className="title-emphasis font-light text-neon">{emphasis}</em>
       {rest.join(emphasis)}
     </>
   );
 }
 
-export function ContactSection({ compact = false, content = defaultContent }) {
+export function ContactSection({ compact = false, content = CONTACT_DEFAULT_CONTENT }) {
   const [errors, setErrors] = useState({});
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -40,9 +31,9 @@ export function ContactSection({ compact = false, content = defaultContent }) {
     subject: "",
     message: "",
   });
-  const resolved = { ...defaultContent, ...(content || {}) };
+  const resolved = { ...CONTACT_DEFAULT_CONTENT, ...(content || {}) };
+  const contactItems = Array.isArray(resolved.items) ? resolved.items : CONTACT_DEFAULT_CONTENT.items;
 
-  // Auto-hide success message after 10 seconds and reset form
   useEffect(() => {
     if (sent) {
       const timer = setTimeout(() => {
@@ -61,10 +52,9 @@ export function ContactSection({ compact = false, content = defaultContent }) {
     }
   }, [sent]);
 
-  // Simple validation functions
   const validateField = (name, value) => {
     let error = "";
-    
+
     switch (name) {
       case "name":
         if (!value.trim()) error = "Name is required";
@@ -86,22 +76,20 @@ export function ContactSection({ compact = false, content = defaultContent }) {
         else if (value.trim().length > 1000) error = "Message must be less than 1000 characters";
         break;
     }
-    
-    setErrors(prev => ({
+
+    setErrors((prev) => ({
       ...prev,
-      [name]: error
+      [name]: error,
     }));
   };
 
   const handleInputChange = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Clear error when user starts typing
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
-    
-    // Validate field in real-time (with debounce)
+
     setTimeout(() => {
       validateField(name, value);
     }, 500);
@@ -109,25 +97,25 @@ export function ContactSection({ compact = false, content = defaultContent }) {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    
-    // Validate all fields with simple validation
+
     const newErrors = {};
-    
+
     if (!formData.name.trim()) newErrors.name = "Name is required";
     else if (formData.name.trim().length < 2) newErrors.name = "Name must be at least 2 characters";
     else if (formData.name.trim().length > 100) newErrors.name = "Name must be less than 100 characters";
-    
+
     if (!formData.email.trim()) newErrors.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) newErrors.email = "Please enter a valid email address";
-    
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim()))
+      newErrors.email = "Please enter a valid email address";
+
     if (!formData.subject.trim()) newErrors.subject = "Subject is required";
     else if (formData.subject.trim().length < 3) newErrors.subject = "Subject must be at least 3 characters";
     else if (formData.subject.trim().length > 200) newErrors.subject = "Subject must be less than 200 characters";
-    
+
     if (!formData.message.trim()) newErrors.message = "Message is required";
     else if (formData.message.trim().length < 10) newErrors.message = "Message must be at least 10 characters";
     else if (formData.message.trim().length > 1000) newErrors.message = "Message must be less than 1000 characters";
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -170,28 +158,32 @@ export function ContactSection({ compact = false, content = defaultContent }) {
             </h2>
             <p className="mt-5 text-muted-foreground max-w-md">{resolved.description}</p>
 
-            <ul className="mt-10 space-y-5">
-              <li className="flex items-center gap-4">
-                <span className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-accent/10 text-accent">
-                  <Mail className="h-5 w-5" />
-                </span>
-                <div>
-                  <div className="text-xs uppercase tracking-widest text-muted-foreground">Email</div>
-                  <a href={`mailto:${resolved.email}`} className="font-medium hover:text-accent transition-colors">
-                    {resolved.email}
-                  </a>
-                </div>
-              </li>
-              <li className="flex items-center gap-4">
-                <span className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-accent/10 text-accent">
-                  <MapPin className="h-5 w-5" />
-                </span>
-                <div>
-                  <div className="text-xs uppercase tracking-widest text-muted-foreground">Studio</div>
-                  <div className="font-medium">{resolved.studio}</div>
-                </div>
-              </li>
-            </ul>
+            {contactItems.length ? (
+              <ul className="mt-10 space-y-5">
+                {contactItems.map((item, index) => {
+                  const Icon = resolveContactIcon(item.icon);
+                  const valueNode = item.href ? (
+                    <a href={item.href} className="font-medium hover:text-accent transition-colors">
+                      {item.value}
+                    </a>
+                  ) : (
+                    <div className="font-medium">{item.value}</div>
+                  );
+
+                  return (
+                    <li key={`${item.label}-${index}`} className="flex items-center gap-4">
+                      <span className="h-11 w-11 inline-flex items-center justify-center rounded-xl bg-accent/10 text-accent">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <div>
+                        <div className="text-xs uppercase tracking-widest text-muted-foreground">{item.label}</div>
+                        {valueNode}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : null}
           </Reveal>
 
           <Reveal delay={0.1}>
@@ -212,41 +204,39 @@ export function ContactSection({ compact = false, content = defaultContent }) {
             ) : (
               <form onSubmit={onSubmit} className="rounded-3xl border border-border bg-card p-7 sm:p-8">
                 {errors.form && (
-                  <div className="mb-5 rounded-xl bg-destructive/10 text-destructive px-4 py-3 text-sm">
-                    {errors.form}
-                  </div>
+                  <div className="mb-5 rounded-xl bg-destructive/10 text-destructive px-4 py-3 text-sm">{errors.form}</div>
                 )}
                 <div className="space-y-5">
-                  <Field 
-                    label="Name" 
-                    name="name" 
-                    placeholder="Your full name" 
+                  <Field
+                    label="Name"
+                    name="name"
+                    placeholder="Your full name"
                     error={errors.name}
                     value={formData.name}
                     onChange={(value) => handleInputChange("name", value)}
                   />
-                  <Field 
-                    label="Email" 
-                    name="email" 
-                    type="email" 
-                    placeholder="you@company.com" 
+                  <Field
+                    label="Email"
+                    name="email"
+                    type="email"
+                    placeholder="you@company.com"
                     error={errors.email}
                     value={formData.email}
                     onChange={(value) => handleInputChange("email", value)}
                   />
-                  <Field 
-                    label="Phone" 
-                    name="phone" 
-                    type="tel" 
-                    placeholder="Your phone number (optional)" 
+                  <Field
+                    label="Phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="Your phone number (optional)"
                     error={errors.phone}
                     value={formData.phone}
                     onChange={(value) => handleInputChange("phone", value)}
                   />
-                  <Field 
-                    label="Subject" 
-                    name="subject" 
-                    placeholder="What is this about?" 
+                  <Field
+                    label="Subject"
+                    name="subject"
+                    placeholder="What is this about?"
                     error={errors.subject}
                     value={formData.subject}
                     onChange={(value) => handleInputChange("subject", value)}
@@ -318,4 +308,3 @@ function Field({ label, name, type = "text", placeholder, error, value, onChange
     </div>
   );
 }
-

@@ -15,7 +15,7 @@ function renderTitle(title, emphasis) {
   return (
     <>
       {before}
-      <em className="font-light">{emphasis}</em>
+      <em className="title-emphasis font-light text-neon">{emphasis}</em>
       {rest.join(emphasis)}
     </>
   );
@@ -29,9 +29,9 @@ export default async function BlogPage() {
 
   return (
     <>
-      <section className="pt-40 pb-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-hero" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+      <section className="page-hero pt-40 pb-16">
+        <div className="page-hero__bg bg-hero" aria-hidden />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
             <span className="text-xs uppercase tracking-[0.3em] text-accent font-semibold">{pageHeader.eyebrow || "Journal"}</span>
             <h1 className="mt-4 text-5xl sm:text-7xl font-bold tracking-tight max-w-4xl leading-[1.02]">

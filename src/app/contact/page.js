@@ -1,6 +1,7 @@
 import { Reveal } from "@/components/reveal";
 import { ContactSection } from "@/components/sections/contact";
 import { buildPageMetadata, getPublicSiteData } from "@/lib/cms/public";
+import { normalizeHomeLayout } from "@/lib/cms/home-layout";
 
 export async function generateMetadata() {
   return buildPageMetadata("contact");
@@ -15,7 +16,7 @@ function renderTitle(title, emphasis) {
   return (
     <>
       {before}
-      <em className="font-light">{emphasis}</em>
+      <em className="title-emphasis font-light text-neon">{emphasis}</em>
       {rest.join(emphasis)}
     </>
   );
@@ -24,13 +25,15 @@ function renderTitle(title, emphasis) {
 export default async function ContactPage() {
   const data = await getPublicSiteData();
   const sections = data.sections || {};
+  const layoutItems = normalizeHomeLayout(sections.homeLayout, sections);
+  const contactContent = layoutItems.find((item) => item.type === "contact")?.content || sections.contact;
   const pageHeader = sections?.pageHeaders?.contact || {};
 
   return (
     <>
-      <section className="pt-40 pb-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-hero" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+      <section className="page-hero pt-40 pb-8">
+        <div className="page-hero__bg bg-hero" aria-hidden />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
             <span className="text-xs uppercase tracking-[0.3em] text-accent font-semibold">{pageHeader.eyebrow || "Contact"}</span>
             <h1 className="mt-4 text-5xl sm:text-7xl font-bold tracking-tight max-w-4xl leading-[1.02]">
@@ -39,7 +42,7 @@ export default async function ContactPage() {
           </Reveal>
         </div>
       </section>
-      <ContactSection compact content={sections.contact} />
+      <ContactSection compact content={contactContent} />
     </>
   );
 }

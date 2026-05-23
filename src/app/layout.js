@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GlowCursor } from "@/components/glow-cursor";
 import { GsapScrollEffects } from "@/components/gsap-scroll-effects";
+import { getSiteFaviconPath } from "@/lib/cms/asset-cache";
 import { buildPageMetadata, getPublicSiteData, getGlobalSeoSettings } from "@/lib/cms/public";
 
 export const dynamic = "force-dynamic";
@@ -34,17 +35,18 @@ export default async function RootLayout({ children }) {
   const settings = data.settings || {};
   const general = settings.general || {};
   const seo = settings.seo || {};
+  const faviconPath = getSiteFaviconPath(seo);
 
   return (
     <html lang="en" suppressHydrationWarning className={poppins.variable}>
       <head>
-        {seo.faviconUrl && (
+        {faviconPath ? (
           <>
-            <link rel="icon" href={seo.faviconUrl} sizes="any" />
-            <link rel="icon" href={seo.faviconUrl} sizes="32x32" />
-            <link rel="apple-touch-icon" href={seo.faviconUrl} sizes="180x180" />
+            <link rel="icon" href={faviconPath} sizes="any" />
+            <link rel="shortcut icon" href={faviconPath} />
+            <link rel="apple-touch-icon" href={faviconPath} />
           </>
-        )}
+        ) : null}
       </head>
       <body suppressHydrationWarning>
         {seo.headerScripts ? (

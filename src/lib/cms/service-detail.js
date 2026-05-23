@@ -242,6 +242,12 @@ function resolveAboutParagraphFallbacks(title) {
   ];
 }
 
+/** Headings shown on /services cards (from each service's proven process steps). */
+export function getServiceProcessHeadings(service) {
+  const payload = normalizeServicePayload(service?.payload || {}, { title: service?.title || "" });
+  return payload.process.steps.map((step) => step.title).filter(Boolean);
+}
+
 export function normalizeServicePayload(inputPayload, { title = "" } = {}) {
   const payload = toObject(inputPayload);
   const defaults = DEFAULT_SERVICE_DETAIL;

@@ -3,6 +3,7 @@ import { ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { Reveal } from "@/components/reveal";
 import { CTA } from "@/components/sections/cta";
 import { buildPageMetadata, getPublicSiteData } from "@/lib/cms/public";
+import { getServiceProcessHeadings } from "@/lib/cms/service-detail";
 import { resolveServiceIcon } from "@/lib/icon-map";
 
 export async function generateMetadata() {
@@ -18,7 +19,7 @@ function renderTitle(title, emphasis) {
   return (
     <>
       {before}
-      <em className="font-light">{emphasis}</em>
+      <em className="title-emphasis font-light text-neon">{emphasis}</em>
       {rest.join(emphasis)}
     </>
   );
@@ -28,15 +29,13 @@ export default async function ServicesPage() {
   const data = await getPublicSiteData();
   const sections = data.sections || {};
   const pageHeader = sections?.pageHeaders?.services || {};
-  const servicesSection = sections?.services || {};
   const services = Array.isArray(data.services) ? data.services : [];
-  const steps = Array.isArray(servicesSection.processSteps) ? servicesSection.processSteps : [];
 
   return (
     <>
-      <section className="pt-40 pb-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-hero" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+      <section className="page-hero pt-40 pb-16">
+        <div className="page-hero__bg bg-hero" aria-hidden />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
             <span className="text-xs uppercase tracking-[0.3em] text-accent font-semibold">{pageHeader.eyebrow || "Services"}</span>
             <h1 className="mt-4 text-5xl sm:text-7xl font-bold tracking-tight max-w-4xl leading-[1.02]">
@@ -51,6 +50,7 @@ export default async function ServicesPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-6">
           {services.map((service, index) => {
             const Icon = resolveServiceIcon(service.icon || service.payload?.icon);
+            const processHeadings = getServiceProcessHeadings(service);
             return (
               <Reveal key={service.id || service.title || index} delay={index * 0.04}>
                 <div className="group grid md:grid-cols-12 gap-6 rounded-3xl border border-border bg-card p-7 sm:p-10 hover:border-accent/40 hover:shadow-elegant transition-all">
@@ -64,19 +64,16 @@ export default async function ServicesPage() {
                     <p className="mt-3 text-muted-foreground">{service.desc || service.excerpt}</p>
                   </div>
                   <div className="md:col-span-5">
-                    <ul className="space-y-2.5 text-sm">
-                      {(steps.length ? steps : [
-                        "Discovery and strategy",
-                        "Design and prototyping",
-                        "Build and launch",
-                        "Iterate and grow",
-                      ]).map((step) => (
-                        <li key={step} className="flex items-start gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-accent mt-0.5 shrink-0" />
-                          <span>{step}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    {processHeadings.length ? (
+                      <ul className="space-y-2.5 text-sm">
+                        {processHeadings.map((step, stepIndex) => (
+                          <li key={`${service.id || service.slug || index}-step-${stepIndex}`} className="flex items-start gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-accent mt-0.5 shrink-0" />
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
                   </div>
                   <div className="md:col-span-1 flex md:justify-end items-start">
                     <Link

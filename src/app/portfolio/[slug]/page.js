@@ -106,7 +106,7 @@ export default async function PortfolioDetailPage({ params }) {
 
   return (
     <>
-      <section className="pt-40 pb-20 relative overflow-hidden">
+      <section className="page-hero pt-40 pb-20">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-accent/5" />
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
@@ -129,7 +129,7 @@ export default async function PortfolioDetailPage({ params }) {
                     </span>
                     <span className="text-sm text-muted-foreground font-medium">{hero.typeLabel}</span>
                   </div>
-                  <h1 className="text-5xl sm:text-7xl font-bold tracking-tight leading-[1.02] mb-8 bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                  <h1 className="text-5xl sm:text-7xl font-bold tracking-tight leading-[1.05] mb-8 text-foreground">
                     {portfolioItem.title}
                   </h1>
                   <p className="text-2xl text-muted-foreground mb-8 leading-relaxed font-light">

@@ -62,10 +62,10 @@ export default async function ServiceDetailPage({ params }) {
 
   return (
     <>
-      <section className="pt-40 pb-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-br from-background via-background to-accent/5" />
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+      <section className="page-hero pt-40 pb-20">
+        <div className="page-hero__bg bg-linear-to-br from-background via-background to-accent/5" aria-hidden />
+        <div className="page-hero__bg bg-grid-pattern opacity-[0.02]" aria-hidden />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
           <Reveal>
             <Link
               href="/services"
@@ -85,7 +85,7 @@ export default async function ServiceDetailPage({ params }) {
                     </span>
                     <span className="text-sm text-muted-foreground font-medium">{payload.hero.subtitle}</span>
                   </div>
-                  <h1 className="text-5xl sm:text-7xl font-bold tracking-tight leading-[1.02] mb-8 bg-linear-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                  <h1 className="text-5xl sm:text-7xl font-bold tracking-tight leading-[1.05] mb-8 text-foreground">
                     {title}
                   </h1>
                   <p className="text-2xl text-muted-foreground mb-8 leading-relaxed font-light">{payload.hero.description}</p>

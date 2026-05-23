@@ -12,6 +12,7 @@ import {
   normalizeHomeSectionContent,
   serializeHomeLayout,
 } from "@/lib/cms/home-layout";
+import { CONTACT_ICON_OPTIONS } from "@/lib/cms/contact-section";
 
 const INPUT_CLASSNAME =
   "w-full rounded-xl border border-input bg-card px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all";
@@ -246,7 +247,11 @@ export default function HomeSectionsPage() {
     try {
       const payload = serializeHomeLayout(layoutItems);
       await adminApi.saveSection("homeLayout", payload);
-      const normalized = normalizeHomeLayout(payload);
+      const normalized = normalizeHomeLayout(payload.items);
+      const contactItem = normalized.find((item) => item.type === "contact");
+      if (contactItem?.content) {
+        await adminApi.saveSection("contact", contactItem.content);
+      }
       setLayoutItems(normalized);
       setSelectedId((prev) => {
         if (normalized.some((item) => item.id === prev)) {
@@ -915,6 +920,151 @@ function SectionEditor({ item, uploading, onAboutUpload, onContentChange }) {
             className={TEXTAREA_CLASSNAME}
           />
         </Field>
+      </div>
+    );
+  }
+
+  if (item.type === "contact") {
+    const contactItems = Array.isArray(content.items) ? content.items : [];
+
+    const updateContactItem = (index, field, value) => {
+      const nextItems = contactItems.map((entry, itemIndex) =>
+        itemIndex === index ? { ...entry, [field]: value } : entry
+      );
+      onContentChange({ ...content, items: nextItems });
+    };
+
+    const addContactItem = () => {
+      onContentChange({
+        ...content,
+        items: [...contactItems, { label: "Phone", value: "", href: "", icon: "Phone" }],
+      });
+    };
+
+    const removeContactItem = (index) => {
+      onContentChange({
+        ...content,
+        items: contactItems.filter((_, itemIndex) => itemIndex !== index),
+      });
+    };
+
+    return (
+      <div className="space-y-5">
+        <h2 className="text-xl font-semibold">{definition.label}</h2>
+        <p className="text-sm text-muted-foreground">
+          Manage the contact heading, description, and detail rows (email, location, phone, etc.).
+        </p>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Eyebrow">
+            <input
+              type="text"
+              value={content.eyebrow || ""}
+              onChange={(event) => onContentChange({ ...content, eyebrow: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+          <Field label="Title Emphasis">
+            <input
+              type="text"
+              value={content.titleEmphasis || ""}
+              onChange={(event) => onContentChange({ ...content, titleEmphasis: event.target.value })}
+              className={INPUT_CLASSNAME}
+            />
+          </Field>
+        </div>
+        <Field label="Title">
+          <input
+            type="text"
+            value={content.title || ""}
+            onChange={(event) => onContentChange({ ...content, title: event.target.value })}
+            className={INPUT_CLASSNAME}
+          />
+        </Field>
+        <Field label="Description">
+          <textarea
+            rows={4}
+            value={content.description || ""}
+            onChange={(event) => onContentChange({ ...content, description: event.target.value })}
+            className={TEXTAREA_CLASSNAME}
+          />
+        </Field>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Contact Details</h3>
+            <button
+              type="button"
+              onClick={addContactItem}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-secondary/60 transition-colors"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add Item
+            </button>
+          </div>
+
+          {contactItems.length ? (
+            <div className="space-y-3">
+              {contactItems.map((entry, index) => (
+                <div key={`contact-item-${index}`} className="rounded-xl border border-border p-3 bg-card space-y-3">
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <Field label="Label">
+                      <input
+                        type="text"
+                        value={entry.label || ""}
+                        onChange={(event) => updateContactItem(index, "label", event.target.value)}
+                        className={INPUT_CLASSNAME}
+                        placeholder="Email"
+                      />
+                    </Field>
+                    <Field label="Icon">
+                      <select
+                        value={entry.icon || "Mail"}
+                        onChange={(event) => updateContactItem(index, "icon", event.target.value)}
+                        className={INPUT_CLASSNAME}
+                      >
+                        {CONTACT_ICON_OPTIONS.map((icon) => (
+                          <option key={icon} value={icon}>
+                            {icon}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Value">
+                      <input
+                        type="text"
+                        value={entry.value || ""}
+                        onChange={(event) => updateContactItem(index, "value", event.target.value)}
+                        className={INPUT_CLASSNAME}
+                        placeholder="hello@nova.studio"
+                      />
+                    </Field>
+                    <Field label="Link (optional)" hint="Leave empty to auto-generate mailto/tel links">
+                      <input
+                        type="text"
+                        value={entry.href || ""}
+                        onChange={(event) => updateContactItem(index, "href", event.target.value)}
+                        className={INPUT_CLASSNAME}
+                        placeholder="mailto:hello@nova.studio"
+                      />
+                    </Field>
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => removeContactItem(index)}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:text-destructive hover:border-destructive/40 transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No contact items added yet.</p>
+          )}
+        </div>
       </div>
     );
   }

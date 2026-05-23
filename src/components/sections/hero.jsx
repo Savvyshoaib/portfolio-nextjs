@@ -27,7 +27,7 @@ export function Hero({ content = defaultContent }) {
   const stats = Array.isArray(resolved.stats) ? resolved.stats : defaultContent.stats;
 
   return (
-    <section id="home" className="relative pt-40 pb-32 overflow-hidden noise" data-gsap-section>
+    <section id="home" className="relative pt-40 pb-32 noise" data-gsap-section>
       <div className="blob bg-neon/30 h-[500px] w-[500px] -top-32 -left-32 animate-float" data-gsap-parallax data-gsap-depth="12" />
       <div
         className="blob bg-neon/15 h-[600px] w-[600px] top-40 -right-40 animate-float"
