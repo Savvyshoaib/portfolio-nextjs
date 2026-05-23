@@ -145,8 +145,9 @@ export default async function ServiceDetailPage({ params }) {
                       </div>
                     </div>
                   </div>
+                  
 
-                  <div className="rounded-3xl border border-border bg-card/50 backdrop-blur-sm p-8 shadow-elegant">
+                  {/* <div className="rounded-3xl border border-border bg-card/50 backdrop-blur-sm p-8 shadow-elegant">
                     <h3 className="font-bold text-lg mb-6 flex items-center gap-3 text-foreground">
                       <div className="w-8 h-8 bg-linear-to-br from-accent to-accent/60 rounded-lg flex items-center justify-center">
                         <Globe className="h-4 w-4 text-accent-foreground" />
@@ -167,7 +168,7 @@ export default async function ServiceDetailPage({ params }) {
                         <dd className="text-lg font-semibold text-foreground">{payload.overview.support}</dd>
                       </div>
                     </dl>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

@@ -52,8 +52,8 @@ export default async function HomePage() {
         return <CTA key={item.id} content={item.content} />;
       case "portfolio":
         return <Portfolio key={item.id} content={item.content || sections.portfolio} items={latestPortfolio} />;
-      case "techStack":
-        return <TechStack key={item.id} content={item.content} items={item.content?.items} />;
+      // case "techStack":
+      //   return <TechStack key={item.id} content={item.content} items={item.content?.items} />;
       case "testimonials":
         return <Testimonials key={item.id} content={item.content} items={item.content?.items} />;
       case "blog":
