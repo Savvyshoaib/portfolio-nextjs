@@ -31,26 +31,53 @@ export default async function BlogPage() {
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid gap-6 md:grid-cols-3">
-            {posts.map((post, index) => (
-              <Reveal key={`${post.id || post.slug || post.title}-${index}`} delay={(index % 3) * 0.06}>
-                <Link
-                  href={post.slug ? `/blog/${post.slug}` : "/blog"}
-                  className="group block h-full rounded-3xl border border-border bg-card overflow-hidden hover:border-accent/40 hover:shadow-elegant transition-all"
-                >
-                  <div className="aspect-[16/10] bg-gradient-to-br from-accent/30 via-accent/10 to-transparent relative overflow-hidden">
-                    <div className="absolute inset-0 grid-bg opacity-50" />
-                    <span className="absolute top-4 left-4 text-xs rounded-full bg-background/80 backdrop-blur px-3 py-1">
-                      {post.tag || post.payload?.tag}
-                    </span>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-xs text-muted-foreground">{post.date || post.payload?.date}</p>
-                    <h3 className="mt-2 text-lg font-semibold tracking-tight group-hover:text-accent transition-colors">{post.title}</h3>
-                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
+        {posts.map((post, index) => {
+  console.log(post);
+
+  return (
+    <Reveal
+  key={`${post.id || post.slug || post.title}-${index}`}
+  delay={(index % 3) * 0.06}
+>
+  <Link
+    href={post.slug ? `/blog/${post.slug}` : "/blog"}
+    className="group block h-full rounded-3xl border border-border bg-card overflow-hidden hover:border-accent/40 hover:shadow-elegant transition-all"
+  >
+    <div className="aspect-[16/10] relative overflow-hidden">
+      {post.cover_image_url ? (
+        <img
+          src={post.cover_image_url}
+          alt={post.title}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <div className="h-full w-full bg-gradient-to-br from-accent/30 via-accent/10 to-transparent relative">
+          <div className="absolute inset-0 grid-bg opacity-50" />
+        </div>
+      )}
+
+      <span className="absolute top-4 left-4 z-10 text-xs rounded-full bg-background/80 backdrop-blur px-3 py-1">
+        {post.tag || post.payload?.tag}
+      </span>
+    </div>
+
+    <div className="p-6">
+      <p className="text-xs text-muted-foreground">
+        {post.date || post.payload?.date}
+      </p>
+
+      <h3 className="mt-2 text-lg font-semibold tracking-tight group-hover:text-accent transition-colors">
+        {post.title}
+      </h3>
+
+      <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+        {post.excerpt}
+      </p>
+    </div>
+  </Link>
+</Reveal>
+  );
+})}
           </div>
         </div>
       </section>
