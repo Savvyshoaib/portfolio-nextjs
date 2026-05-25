@@ -18,6 +18,10 @@ const defaultFooter = {
     { to: "/blog", label: "Journal" },
     { to: "/contact", label: "Contact" },
   ],
+  legalLinks: [
+    { to: "/privacy", label: "Privacy Policy" },
+    { to: "/terms", label: "Terms & Conditions" },
+  ],
   socials: [],
   logoUrl: "",
   logoLightUrl: "",
@@ -103,6 +107,7 @@ export function SiteFooter({
   const brand = formatBrand(siteName);
   const resolvedFooter = { ...defaultFooter, ...(footer || {}) };
   const exploreLinks = Array.isArray(resolvedFooter.exploreLinks) ? resolvedFooter.exploreLinks : defaultFooter.exploreLinks;
+  const legalLinks = Array.isArray(resolvedFooter.legalLinks) ? resolvedFooter.legalLinks : defaultFooter.legalLinks;
   const socials = Array.isArray(resolvedFooter.socials) ? resolvedFooter.socials : [];
   const footerLogoFallbackUrl = String(resolvedFooter.logoUrl || logoUrl || "").trim();
   const footerLogoLightUrl = String(resolvedFooter.logoLightUrl || logoLightUrl || "").trim();
@@ -172,7 +177,7 @@ export function SiteFooter({
             </Link>
           </div>
 
-          <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-8 text-sm">
+          <div className="md:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-8 text-sm">
             <div>
               <div className="text-xs uppercase tracking-widest text-neon mb-4">Explore</div>
               <ul className="space-y-3">
@@ -186,25 +191,40 @@ export function SiteFooter({
               </ul>
             </div>
             <div>
-              <div className="text-xs uppercase tracking-widest text-neon mb-4">Connect</div>
-              <div className="flex flex-wrap gap-2">
-                {socials.map((social) => (
-                  <a
-                    key={social.label}
-                    href={social.url || "#"}
-                    aria-label={social.label}
-                    target={social.url?.startsWith("http") ? "_blank" : undefined}
-                    rel={social.url?.startsWith("http") ? "noreferrer" : undefined}
-                    className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-neon transition"
-                  >
-                    <SocialIcon d={social.iconPath} />
-                  </a>
+              <div className="text-xs uppercase tracking-widest text-neon mb-4">Legal</div>
+              <ul className="space-y-3">
+                {legalLinks.map((item) => (
+                  <li key={item.to}>
+                    <Link href={item.to} className="text-muted-foreground hover:text-foreground transition">
+                      {item.label}
+                    </Link>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
             <div>
               <div className="text-xs uppercase tracking-widest text-neon mb-4">Contact</div>
-              {footerEmail ? <a href={`mailto:${footerEmail}`} className="text-muted-foreground hover:text-foreground transition break-all">{footerEmail}</a> : null}
+              {footerEmail ? (
+                <a href={`mailto:${footerEmail}`} className="text-muted-foreground hover:text-foreground transition whitespace-nowrap">
+                  {footerEmail}
+                </a>
+              ) : null}
+              {socials.length ? (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {socials.map((social) => (
+                    <a
+                      key={social.label}
+                      href={social.url || "#"}
+                      aria-label={social.label}
+                      target={social.url?.startsWith("http") ? "_blank" : undefined}
+                      rel={social.url?.startsWith("http") ? "noreferrer" : undefined}
+                      className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-neon transition"
+                    >
+                      <SocialIcon d={social.iconPath} />
+                    </a>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>

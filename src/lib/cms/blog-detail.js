@@ -3,7 +3,7 @@ const DEFAULT_BLOG_DETAIL = {
   heroDescription:
     "Explore cutting-edge insights and practical strategies for modern web development, design systems, and digital innovation.",
   author: "Studio Team",
-  authorRole: "Editorial Team",
+  authorRole: "Admin",
   publishedAt: "",
   readingTime: "6",
   tag: "Article",
